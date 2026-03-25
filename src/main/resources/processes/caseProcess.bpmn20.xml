@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:flowable="http://flowable.org/bpmn"
+             xsi:schemaLocation="
+                http://www.omg.org/spec/BPMN/20100524/MODEL
+                http://www.omg.org/spec/BPMN/2.0/20100501/BPMN20.xsd"
+             targetNamespace="http://www.flowable.org/processdef">
+
+    <process id="caseProcess" name="Case Process" isExecutable="true">
+
+        <!-- Start Event -->
+        <startEvent id="startEvent1" name="Case Submitted"/>
+
+        <!-- Submit Case User Task -->
+        <userTask id="submitTask" name="Submit Case" flowable:assignee="caseWorker"/>
+
+        <!-- Validate Case Service Task -->
+        <serviceTask id="validateTask" name="Validate Case" flowable:delegateExpression="${validationDelegate}"/>
+
+        <!-- Gateway: Case Valid? -->
+        <exclusiveGateway id="gateway1" name="Case Valid?"/>
+
+
+        <!-- Supervisor Review Task -->
+        <userTask id="supervisorTask" name="Supervisor Review" flowable:assignee="supervisor"/>
+
+        <!-- Gateway: Approved? -->
+        <exclusiveGateway id="gateway2" name="Approved?"/>
+
+        <!-- Notify External System -->
+        <serviceTask id="notifyTask" name="Notify External System" flowable:delegateExpression="${notificationDelegate}"/>
+
+        <!-- End Events -->
+        <endEvent id="endApproved" name="Case Completed"/>
+        <endEvent id="endRejected" name="Case Rejected"/>
+
+        <!-- Sequence Flows -->
+
+        <sequenceFlow id="flow_start_to_submit" sourceRef="startEvent1" targetRef="submitTask"/>
+        <sequenceFlow id="flow_submit_to_validate" sourceRef="submitTask" targetRef="validateTask"/>
+        <sequenceFlow id="flow_validate_to_gateway1" sourceRef="validateTask" targetRef="gateway1"/>
+
+        <!-- Gateway 1 decisions -->
+        <sequenceFlow id="flow_gateway1_yes" sourceRef="gateway1" targetRef="supervisorTask">
+            <conditionExpression xsi:type="tFormalExpression">${isValid == true}</conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="flow_gateway1_no" sourceRef="gateway1" targetRef="endRejected">
+            <conditionExpression xsi:type="tFormalExpression">${isValid == false}</conditionExpression>
+        </sequenceFlow>
+
+        <!-- Gateway 2 decisions -->
+        <sequenceFlow id="flow_supervisor_to_gateway2" sourceRef="supervisorTask" targetRef="gateway2"/>
+        <sequenceFlow id="flow_gateway2_yes" sourceRef="gateway2" targetRef="notifyTask">
+            <conditionExpression xsi:type="tFormalExpression">${isApproved == true}</conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="flow_gateway2_no" sourceRef="gateway2" targetRef="endRejected">
+            <conditionExpression xsi:type="tFormalExpression">${isApproved == false}</conditionExpression>
+        </sequenceFlow>
+
+        <sequenceFlow id="flow_notify_to_end" sourceRef="notifyTask" targetRef="endApproved"/>
+
+    </process>
+</definitions>

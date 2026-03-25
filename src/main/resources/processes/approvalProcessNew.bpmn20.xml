@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             targetNamespace="Examples"
+             xsi:schemaLocation="
+                http://www.omg.org/spec/BPMN/20100524/MODEL
+                http://www.omg.org/spec/BPMN/2.0/20100501/BPMN20.xsd">
+    <process id="approvalProcessNew" name="Approval Process New" isExecutable="true">
+
+
+        <startEvent id="startNew" name="Start"/>
+        <sequenceFlow id="flow1" sourceRef="startNew" targetRef="submitNew"/>
+        <userTask id="submitNew" name="Submit Application"/>
+
+        <sequenceFlow id="flow2" sourceRef="submitNew" targetRef="managerApprovalNew"/>
+        <userTask id="managerApprovalNew" name="Manager Approval"/>
+        <sequenceFlow id="flow3" sourceRef="managerApprovalNew" targetRef="endNew"/>
+        <endEvent id="endNew"/>
+    </process>
+
+</definitions>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:flowable="http://flowable.org/bpmn"
+             typeLanguage="http://www.w3.org/2001/XMLSchema"
+             expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="Examples"
+             xsi:schemaLocation="
+                http://www.omg.org/spec/BPMN/20100524/MODEL
+                http://www.omg.org/spec/BPMN/2.0/20100501/BPMN20.xsd">
+
+
+    <process id="caseCreationProcess" name="Case Creation with Person Validation" isExecutable="true">
+        <startEvent id="startCaseEvent" name="Start Case Creation Event"/>
+        <userTask id="enterPersonInfo" name="Enter Person Information"/>
+        <sequenceFlow id="sflow1" sourceRef="startCaseEvent" targetRef="enterPersonInfo"/>
+
+        <serviceTask id="searchPerson" name="Search Person" flowable:delegateExpression="${personSearchService}"/>
+
+        <sequenceFlow id="sflow2" sourceRef="enterPersonInfo" targetRef="searchPerson"/>
+        <exclusiveGateway id="personExistsGateway"/>
+        <sequenceFlow id="flow3" sourceRef="searchPerson" targetRef="personExistsGateway"/>
+        <userTask id="selectPerson" name="Confirm Existing Person"/>
+        <sequenceFlow id="flow4" sourceRef="personExistsGateway" targetRef="selectPerson">
+            <conditionExpression xsi:type="tFormalExpression">${personExists == true}
+            </conditionExpression>
+
+        </sequenceFlow>
+        <!-- Create Person -->
+        <serviceTask id="createPerson" name="Create Person" flowable:delegateExpression="${createPersonService}"/>
+
+        <sequenceFlow id="flow5" sourceRef="personExistsGateway" targetRef="createPerson">
+            <conditionExpression xsi:type="tFormalExpression">${personExists == false}</conditionExpression>
+        </sequenceFlow>
+
+        <!-- Merge -->
+        <exclusiveGateway id="mergeGateway"/>
+
+        <sequenceFlow id="flow6" sourceRef="selectPerson" targetRef="mergeGateway"/>
+        <userTask id="usertask1" name="Confirm Person Created"/>
+        <sequenceFlow id="flow7" sourceRef="createPerson" targetRef="usertask1"/>
+        <sequenceFlow id="flow8" sourceRef="usertask1" targetRef="mergeGateway"/>
+
+        <endEvent id="endSuccess" name="Person Created"/>
+        <sequenceFlow id="flow1" sourceRef="mergeGateway" targetRef="endSuccess"/>
+
+    </process>
+
+</definitions>
