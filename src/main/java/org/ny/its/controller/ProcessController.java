@@ -39,9 +39,9 @@ public class ProcessController {
     }
 
     @PostMapping("/tasks/complete")
-    public String completeTask(@RequestParam String taskId, @RequestParam String processInstanceId) {
+    public String completeTask(@RequestParam String taskId, @RequestParam String processInstanceId, Model model) {
 
-        workflowTaskService.completeTask(taskId, processInstanceId);
+        String view = workflowTaskService.completeTask(taskId, processInstanceId, model);
 
         return "redirect:/";
     }

@@ -1,6 +1,11 @@
 package org.ny.its.controller;
 
 import jakarta.validation.Valid;
+import org.flowable.engine.IdentityService;
+import org.flowable.engine.RuntimeService;
+import org.flowable.engine.TaskService;
+import org.flowable.engine.runtime.ProcessInstance;
+import org.flowable.task.api.Task;
 import org.ny.its.dto.Person;
 import org.ny.its.dto.ProcessDTO;
 import org.ny.its.dto.TaskDTO;
@@ -25,6 +30,17 @@ public class CaseController {
     private CaseService caseService;
     @Autowired
     private WorkflowTaskService workflowTaskService;
+
+    private final RuntimeService runtimeService;
+    private final TaskService taskService;
+    private final IdentityService identityService;
+
+    public CaseController(RuntimeService runtimeService, TaskService taskService, IdentityService identityService) {
+        this.runtimeService = runtimeService;
+        this.taskService = taskService;
+        this.identityService = identityService;
+    }
+
 
     @PostMapping("/start")
     public String startNewCaseProcess() {
@@ -124,11 +140,19 @@ public class CaseController {
     }
 
     @PostMapping("/tasks/complete")
-    public String completeTask(@RequestParam String taskId, @RequestParam String processInstanceId) {
+    public String completeTask(@RequestParam String taskId, @RequestParam String processInstanceId, Model model) {
+        Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
 
-        workflowTaskService.completeTask(taskId, processInstanceId);
+        // 2. Fetch process variables
+        Map<String, Object> vars = runtimeService.getVariables(task.getProcessInstanceId());
+        // 4. Send to Thymeleaf form
+        model.addAttribute("person", caseService.getPersonData(processInstanceId));
+        model.addAttribute("taskId", taskId);
 
-        return "redirect:/case/home";
+        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+        String processDefinitionKey = processInstance.getProcessDefinitionKey();
+        return "validateCaseForm";
+              //  workflowTaskService.completeTask(taskId, processInstanceId, model);
     }
 
     @GetMapping("/cleanup")
