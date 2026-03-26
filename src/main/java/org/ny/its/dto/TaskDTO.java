@@ -1,4 +1,4 @@
-package com.vk.dto;
+package org.ny.its.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

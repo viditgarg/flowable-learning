@@ -1,0 +1,20 @@
+/* styles.css */
+
+.center-heading {
+    text-align: center;
+}
+
+.right-heading {
+    text-align: right;
+}
+
+.left-heading {
+    text-align: left;
+}
+
+/* If you want to center the block element itself */
+.center-block-heading {
+    width: 50%; /* Or any desired width */
+    margin: 0 auto;
+    text-align: center; /* You might still want to center the text within the block */
+}

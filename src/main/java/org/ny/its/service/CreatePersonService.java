@@ -1,4 +1,4 @@
-package com.vk.service;
+package org.ny.its.service;
 
 import lombok.RequiredArgsConstructor;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -12,9 +12,10 @@ import org.springframework.stereotype.Service;
 public class CreatePersonService implements JavaDelegate {
 
     private final Logger log = LoggerFactory.getLogger(CreatePersonService.class);
+
     @Override
     public void execute(DelegateExecution execution) {
-        log.info("Creating New Person ::"+execution.getVariable("firstName")+" "+execution.getVariable("lastName"));
+        log.info("Creating New Person ::" + execution.getVariable("firstName") + " " + execution.getVariable("lastName"));
         // execution.va
         log.info("person created");
     }

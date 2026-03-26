@@ -1,0 +1,119 @@
+.form-container {
+    display: flex;
+    flex-direction: column; /* Stack rows vertically */
+    gap: 15px; /* Space between rows */
+    width: 400px; /* Adjust as needed */
+    margin: 20px auto; /* Center the form */
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.form-row {
+    display: flex;
+    flex-direction: column; /* Stack label and input vertically within a row */
+    gap: 5px; /* Space between label and input */
+}
+
+.form-row label {
+    font-weight: bold;
+}
+
+.form-row input[type="text"],
+.form-row input[type="email"],
+.form-row select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%; /* Make input take full width of its container */
+    box-sizing: border-box;
+}
+
+.button-row {
+    align-items: flex-end; /* Align button to the right */
+    margin-top: 10px;
+}
+
+.button-row button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.button-row button:hover {
+    background-color: #0056b3;
+}
+
+/* Error message styling */
+.form-row p[style*="color: red;"] {
+    margin-top: 3px;
+    font-size: 0.9em;
+}
+
+/* --- New styles for input sizing --- */
+.form-input-field {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Crucial for consistent sizing */
+    /* Default width for single-column rows */
+    width: 100px; /* Takes full width of its parent .form-row */
+}
+
+/* Style for specific input types if needed */
+.form-input-field[type="text"],
+.form-input-field[type="email"],
+.form-input-field select {
+    /* You can add specific styles here if needed, but often the general class is enough */
+}
+
+/* --- Styles for side-by-side fields --- */
+.form-row-inline {
+    display: flex; /* Use flex to put items side-by-side */
+    gap: 15px; /* Space between the two columns */
+}
+
+.form-row-inline > div { /* Target the direct children (the divs containing label+input) */
+    flex: 1; /* Allow each column to grow and shrink equally */
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.half-width {
+    /* This class is applied to the input itself */
+    /* The parent div with flex: 1 already controls the column width */
+    width: 100%; /* Ensure it fills its parent column */
+}
+
+/* --- Button styles --- */
+.button-row {
+    align-items: flex-end;
+    margin-top: 10px;
+}
+
+.button-row button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.button-row button:hover {
+    background-color: #0056b3;
+}
+
+/* Error message styling */
+.form-row p[style*="color: red;"],
+.form-row-inline p[style*="color: red;"] { /* Ensure error messages are styled too */
+    margin-top: 3px;
+    font-size: 0.9em;
+}

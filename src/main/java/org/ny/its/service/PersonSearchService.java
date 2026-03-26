@@ -1,4 +1,4 @@
-package com.vk.service;
+package org.ny.its.service;
 
 import lombok.RequiredArgsConstructor;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -15,8 +15,8 @@ public class PersonSearchService implements JavaDelegate {
     @Override
     public void execute(DelegateExecution execution) {
 
-        log.info("Searching for ::"+execution.getVariable("firstName")+" "+execution.getVariable("lastName"));
-       // execution.va
+        log.info("Searching for ::" + execution.getVariable("firstName") + " " + execution.getVariable("lastName"));
+        // execution.va
         boolean exists = false; // Person search service can be called
         execution.setVariable("personExists", exists);
 

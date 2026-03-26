@@ -2,29 +2,37 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard</title>
+    <title>Case Dashboard</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 <div th:replace="fragments/header :: header"></div>
 
-<h4>Processes</h4>
-<form th:action="@{/case/registration}" method="post">
-    <button type="submit" class="btn btn-warning">Start New Case Registration Process</button>
+<h4 class="center-heading">Case Registration</h4>
+
+<form th:action="@{/case/new_registration}" method="get">
+    <button type="submit" class="btn btn-warning">Register New Case</button>
 </form>
 
-<h4>Running Processes</h4>
+
+<h4>In Processes Cases</h4>
 <table class="table table-striped">
     <thead>
     <tr>
         <th>Process Instance ID</th>
-        <th>Process Definition ID</th>
+        <th>Process Definition Name</th>
+        <th>Process Start Time</th>
+        <th>Case Primary Person</th>
+
     </tr>
     </thead>
     <tbody>
     <tr th:each="p : ${processes}">
-        <td th:text="${p.id}"></td>
-        <td th:text="${p.processDefinitionId}"></td>
+        <td th:text="${p.processInstanceId}"></td>
+        <td th:text="${p.processDefinitionName}"></td>
+        <td th:text="${p.startTime}"></td>
+        <td th:text="${p.applicantName}"></td>
     </tr>
     </tbody>
 </table>

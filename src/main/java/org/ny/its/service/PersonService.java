@@ -1,4 +1,4 @@
-package com.vk.service;
+package org.ny.its.service;
 
 import lombok.RequiredArgsConstructor;
 import org.flowable.engine.delegate.DelegateExecution;

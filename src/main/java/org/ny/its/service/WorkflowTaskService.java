@@ -1,6 +1,5 @@
-package com.vk.service;
+package org.ny.its.service;
 
-import com.vk.dto.TaskDTO;
 import lombok.RequiredArgsConstructor;
 import org.flowable.engine.IdentityService;
 import org.flowable.engine.RuntimeService;
@@ -8,6 +7,7 @@ import org.flowable.engine.TaskService;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.idm.api.User;
 import org.flowable.task.api.Task;
+import org.ny.its.dto.TaskDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
