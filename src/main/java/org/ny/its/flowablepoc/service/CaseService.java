@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.ny.its.flowablepoc.util.ProcessFlowConstants.CASE_REGISTRATION_V5;
+
 @Service
 @RequiredArgsConstructor
 public class CaseService {
@@ -37,16 +39,14 @@ public class CaseService {
     @Autowired
     private PersonRepository personRepository;
 
-    public static final String CASE_PROCESS_KEY = "case_regV5";
-
     public ProcessInstance startCaseProcess(String processKey) {
-        return runtimeService.startProcessInstanceByKey(CASE_PROCESS_KEY);
+        return runtimeService.startProcessInstanceByKey(CASE_REGISTRATION_V5);
     }
 
     public List<ProcessDTO> getRunningProcesses() {
         List<ProcessInstance> piList =
                 runtimeService.createProcessInstanceQuery()
-                        .processDefinitionKey(CASE_PROCESS_KEY)
+                        .processDefinitionKey(CASE_REGISTRATION_V5)
                         .list();
         return piList.stream().map(
                 p -> {
@@ -168,7 +168,7 @@ public class CaseService {
         variables.put("gender", savedPerson.getGender());
         variables.put("dateofbirth", savedPerson.getDateOfBirth());
 
-        runtimeService.startProcessInstanceByKey(CASE_PROCESS_KEY, variables);
+        runtimeService.startProcessInstanceByKey(CASE_REGISTRATION_V5, variables);
 
     }
 

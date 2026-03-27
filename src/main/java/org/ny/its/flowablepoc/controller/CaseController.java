@@ -21,9 +21,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+import static org.ny.its.flowablepoc.util.ProcessFlowConstants.*;
+
 @Controller
 @RequestMapping("/case")
 public class CaseController {
+
     private final Logger log = LoggerFactory.getLogger(CaseController.class);
     @Autowired
     private CaseService caseService;
@@ -45,7 +48,7 @@ public class CaseController {
     public String startNewCaseProcess() {
         caseService.startCaseProcess("caseCreationProcess");
         log.info("caseCreationProcess started");
-        return "redirect:/case/home";
+        return REDIRECT_CASE_HOME;
 
     }
 
@@ -68,7 +71,7 @@ public class CaseController {
         }
         caseService.submitCaseRegistration(person);
 
-        return "redirect:/case/home";
+        return REDIRECT_CASE_HOME;
 
     }
 
@@ -76,19 +79,23 @@ public class CaseController {
     public String startCaseRegistration() {
         caseService.startCaseProcess("case_regV5");
         log.info("case registration V5 started");
-        return "redirect:/case/home";
+        return REDIRECT_CASE_HOME;
 
     }
 
-
+    /*--
+    This rest endpoint is called from process flow to validate ssn
+     */
     @PostMapping("/ssnValidation")
     @ResponseBody
-    public String validateSSN(@RequestBody Map<String, Object> map) {
+    public boolean validateSSN(@RequestBody Map<String, Object> map) {
 
         //log.info("validateSSN started");
         String ssn = (String) map.get("ssn");
-        log.info("SSN:" + ssn + " successfully validated");
-        return "true";
+        log.info("SSN:" + ssn + " successfully validated, returning SSN_VALID as Yes");
+        double randomValue = Math.random();
+        boolean valid = randomValue < 0.5;
+        return false; //randomValue < 0.5;;
 
     }
 
@@ -137,29 +144,33 @@ public class CaseController {
     @PostMapping("/tasks/complete")
     public String completeTask(@RequestParam String taskId, @RequestParam String processInstanceId, Model model) {
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
-        String view = "redirect:/case/home";
+        String view = REDIRECT_CASE_HOME;
 
 
         log.info("Task Key :" + task.getTaskDefinitionKey());
         switch (task.getTaskDefinitionKey()) {
-            case "caseDetailsTask":
+            case CASE_DETAILS_TASK:
                 populateCaseDetailsForValidation(task, model);
                 view = "validateCaseForm";
                 break;
-            case "doccsManualTask":
+            case DOCCS_MANUAL_TASK:
                 populateCaseDetailsForValidation(task, model);
                 view = "reviewIncarcerationForm";
                 break;
-            case "finalReviewTask":
+            case FINAL_REVIEW_TASK:
 
 
                 break;
-            case "ssnManualTask":
+            case SSN_MANUAL_TASK:
+
+
+                break;
+            case REVIEW_INCARCERATION_TASK:
 
 
                 break;
             default:
-                log.info(task.getTaskDefinitionKey());
+                log.info("Default Switch Case, task key::" + task.getTaskDefinitionKey());
 
         }
         return view;
@@ -175,7 +186,7 @@ public class CaseController {
     public String completeValidation(@RequestParam String taskId, Model model) {
 
         taskService.complete(taskId);
-        return "redirect:/case/home";
+        return REDIRECT_CASE_HOME;
     }
 
     @GetMapping("/cleanup")
@@ -188,9 +199,11 @@ public class CaseController {
     public String completeIncarcerationReview(@RequestParam String taskId, Model model, @ModelAttribute("person") Person person) {
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         runtimeService.setVariable(task.getProcessInstanceId(), "incarcerationStatus", person.getUpdateIncarcerationStatus());
-        //  taskService.complete(taskId);
-        return "redirect:/case/home";
+        taskService.complete(taskId);
+        log.info("Incarceration Review Completed, TaskID::" + taskId);
+        return REDIRECT_CASE_HOME;
     }
+
     @PostMapping("/searchPerson")
     @ResponseBody
     public boolean searchPerson(@RequestBody Map<String, Object> map) {
@@ -209,12 +222,12 @@ public class CaseController {
         String processInstanceId = task.getProcessInstanceId();
 
         // Update the process variables with the possibly edited fields
-        runtimeService.setVariable(processInstanceId, "street", street);
-        runtimeService.setVariable(processInstanceId, "city", city);
-        runtimeService.setVariable(processInstanceId, "state", state);
+        runtimeService.setVariable(processInstanceId, STREET, street);
+        runtimeService.setVariable(processInstanceId, CITY, city);
+        runtimeService.setVariable(processInstanceId, STATE, state);
 
         if (updatePostalCode != null && !updatePostalCode.isEmpty()) {
-            runtimeService.setVariable(processInstanceId, "postalCode", updatePostalCode);
+            runtimeService.setVariable(processInstanceId, POSTAL_CODE, updatePostalCode);
         }
 
         // Complete the review task
