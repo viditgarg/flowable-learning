@@ -28,14 +28,14 @@
     <div class="row mb-3">
         <label class="col-sm-3 col-form-label">First Name</label>
         <div class="col-sm-9">
-            <input type="text" class="form-control" name="firstName" th:value="${person.firstName}" required>
+            <input type="text" class="form-control" name="firstName" th:value="${person.firstName}" readonly>
         </div>
     </div>
 
     <div class="row mb-3">
         <label class="col-sm-3 col-form-label">Last Name</label>
         <div class="col-sm-9">
-            <input type="text" class="form-control" name="lastName" th:value="${person.lastName}" required>
+            <input type="text" class="form-control" name="lastName" th:value="${person.lastName}" readonly>
         </div>
     </div>
 
@@ -54,14 +54,14 @@
     <div class="row mb-3">
         <label class="col-sm-3 col-form-label">SSN</label>
         <div class="col-sm-9">
-            <input type="text" class="form-control" name="ssn" th:value="${person.ssn}" required>
+            <input type="text" class="form-control" name="ssn" th:value="${person.ssn}" readonly>
         </div>
     </div>
 
     <div class="row mb-3">
         <label class="col-sm-3 col-form-label">Date of Birth</label>
         <div class="col-sm-9">
-            <input type="date" class="form-control" name="dateofbirth" th:value="${person.dateofbirth}" required>
+            <input type="date" class="form-control" name="dateofbirth" th:value="${person.dateofbirth}" readonly>
         </div>
     </div>
 
@@ -69,7 +69,7 @@
         <label class="col-sm-3 col-form-label">Incarcerated</label>
         <div class="col-sm-9">
             <input type="text" class="form-control" name="incarcerationStatus" th:value="${person.incarcerationStatus}"
-                   required>
+                   readonly>
         </div>
     </div>
 

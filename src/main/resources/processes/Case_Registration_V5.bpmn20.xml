@@ -1,211 +1,174 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xmlns:flowable="http://flowable.org/bpmn"
-             typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath"
-             targetNamespace="http://www.flowable.org/processdef" exporter="Flowable Open Source Modeler"
+             xmlns:modeler="http://flowable.org/modeler"
+             typeLanguage="http://www.w3.org/2001/XMLSchema"
+             expressionLanguage="http://www.w3.org/1999/XPath"
+             targetNamespace="http://www.flowable.org/processdef"
+             exporter="Flowable Open Source Modeler"
              exporterVersion="6.7.2"
              xsi:schemaLocation="
                 http://www.omg.org/spec/BPMN/20100524/MODEL
                 http://www.omg.org/spec/BPMN/2.0/20100501/BPMN20.xsd">
 
     <process id="case_regV5" name="Case Registration V5" isExecutable="true">
+
+        <!-- START -->
         <startEvent id="startEvent" flowable:initiator="initiator" flowable:formKey="caseregistrationform"
                     flowable:formFieldValidation="true"/>
-        <userTask id="caseDetailsTask" name="Validate Case Details" flowable:candidateGroups="stateworkers,managers"
+
+        <!-- Case Details -->
+        <userTask id="caseDetailsTask" name="Validate Case Details"
+                  flowable:candidateGroups="stateworkers,managers"
                   flowable:formKey="caseregistrationform" flowable:formFieldValidation="true"/>
-        <parallelGateway id="parallelSplit"/>
-        <serviceTask id="ssnApiTask" name="SSN Validation API" flowable:async="true"
-                     flowable:parallelInSameTransaction="false" flowable:type="http">
-            <extensionElements>
-                <flowable:field name="requestMethod">
-                    <flowable:string><![CDATA[POST]]></flowable:string>
-                </flowable:field>
-                <flowable:field name="requestUrl">
-                    <flowable:string><![CDATA[http://localhost:9080/case/ssnValidation]]></flowable:string>
-                </flowable:field>
-                <flowable:field name="requestHeaders">
-                    <flowable:string><![CDATA[Content-Type: application/json]]></flowable:string>
-                </flowable:field>
-                <flowable:field name="requestBody">
-                    <flowable:expression><![CDATA[{ "ssn":"${ssn}" }]]></flowable:expression>
-                </flowable:field>
-                <flowable:field name="responseVariableName">
-                    <flowable:string><![CDATA[ssnResponse]]></flowable:string>
-                </flowable:field>
-                <flowable:field name="saveResponseVariableAsJson">
-                    <flowable:string><![CDATA[true]]></flowable:string>
-                </flowable:field>
-            </extensionElements>
-        </serviceTask>
-        <exclusiveGateway id="ssnGateway"
-                          default="sequenceFlow-0204b080-2c6a-4cdd-abc9-8b97c2da1e4b"/>
-        <userTask id="ssnManualTask" name="SSN Manual Review" flowable:assignee="$INITIATOR"
-                  flowable:formKey="detailsvalidationV2" flowable:formFieldValidation="true">
-            <extensionElements>
-                <modeler:activiti-idm-initiator xmlns:modeler="http://flowable.org/modeler">
-                    <![CDATA[true]]></modeler:activiti-idm-initiator>
-            </extensionElements>
-        </userTask>
 
-        <serviceTask id="doccsApiTask" name="DOCCS Validation API"
-                     flowable:delegateExpression="${incarcerationValidationService}">     <!-- flowable:async="true" flowable:parallelInSameTransaction="false" flowable:type="http"-->
-
-            <extensionElements>
-                <flowable:field name="requestMethod">
-                    <flowable:string><![CDATA[POST]]></flowable:string>
-                </flowable:field>
-                <flowable:field name="requestUrl">
-                    <flowable:string><![CDATA[http://localhost:9080/case/prisonerValidation]]></flowable:string>
-                </flowable:field>
-                <flowable:field name="requestHeaders">
-                    <flowable:string><![CDATA[Content-Type: application/json]]></flowable:string>
-                </flowable:field>
-                <flowable:field name="requestBody">
-                    <flowable:expression><![CDATA[{
-                        "firstName":"${firstName}",
-                        "lastName":"${lastName}",
-                        "dob":"${dateofbirth}",
-                        "ssn":"${ssn}", 
-                        "gender":"${gender}",
-                        "processInstanceId": "${execution.processInstanceId}"
-
-                    }]]></flowable:expression>
-                </flowable:field>
-                <flowable:field name="responseVariableName">
-                    <flowable:string><![CDATA[doccsResponse]]></flowable:string>
-                </flowable:field>
-                <flowable:field name="saveResponseVariableAsJson">
-                    <flowable:string><![CDATA[true]]></flowable:string>
-                </flowable:field>
-            </extensionElements>
-        </serviceTask>
-        <exclusiveGateway id="doccsGateway"
-                          default="sequenceFlow-4929f456-2af7-487e-9913-07c67242c4e4"/>
-        <userTask id="doccsManualTask" name="DOCCS Manual Review" flowable:assignee="$INITIATOR"
-                  flowable:formKey="detailsvalidationV2" flowable:formFieldValidation="true">
-            <extensionElements>
-                <modeler:activiti-idm-initiator xmlns:modeler="http://flowable.org/modeler">
-                    <![CDATA[true]]></modeler:activiti-idm-initiator>
-            </extensionElements>
-        </userTask>
-        <userTask id="finalReviewTask" name="Final Validation Review" flowable:candidateGroups="stateworkers,managers"
-                  flowable:formKey="detailsvalidationV2" flowable:formFieldValidation="true" flowable:priority="10">
-            <extensionElements>
-                <modeler:activiti-idm-initiator xmlns:modeler="http://flowable.org/modeler">
-                    <![CDATA[true]]></modeler:activiti-idm-initiator>
-            </extensionElements>
-        </userTask>
+        <!-- Search Person -->
         <serviceTask id="searchPersonST" name="Search Person" flowable:async="true"
                      flowable:parallelInSameTransaction="false" flowable:type="http">
             <extensionElements>
-                <flowable:field name="requestMethod">
-                    <flowable:string><![CDATA[POST]]></flowable:string>
-                </flowable:field>
-                <flowable:field name="requestUrl">
-                    <flowable:string><![CDATA[http://localhost:9080/case/searchPerson]]></flowable:string>
-                </flowable:field>
-                <flowable:field name="requestHeaders">
-                    <flowable:string><![CDATA[Content-Type: application/json]]></flowable:string>
-                </flowable:field>
-                <flowable:field name="requestBody">
-                    <flowable:expression><![CDATA[{
+                <flowable:field name="requestMethod"><flowable:string>POST</flowable:string></flowable:field>
+                <flowable:field name="requestUrl"><flowable:string>http://localhost:9080/case/searchPerson</flowable:string></flowable:field>
+                <flowable:field name="requestHeaders"><flowable:string>Content-Type: application/json</flowable:string></flowable:field>
+                <flowable:field name="requestBody"><flowable:expression><![CDATA[{
  "firstName":"${firstName}",
-                        "lastName":"${lastName}",
-                        "dob":"${dateofbirth}",
-                        "ssn":"${ssn}",
-                        "gender":"${gender}"
-}]]></flowable:expression>
-                </flowable:field>
-                <flowable:field name="responseVariableName">
-                    <flowable:string><![CDATA[personExist]]></flowable:string>
-                </flowable:field>
-                <flowable:field name="saveResponseParameters">
-                    <flowable:string><![CDATA[true]]></flowable:string>
-                </flowable:field>
-                <flowable:field name="saveResponseVariableAsJson">
-                    <flowable:string><![CDATA[false]]></flowable:string>
-                </flowable:field>
+ "lastName":"${lastName}",
+ "dob":"${dateofbirth}",
+ "ssn":"${ssn}",
+ "gender":"${gender}"
+}]]></flowable:expression></flowable:field>
+                <flowable:field name="responseVariableName"><flowable:string>personExist</flowable:string></flowable:field>
+                <flowable:field name="saveResponseParameters"><flowable:string>true</flowable:string></flowable:field>
+                <flowable:field name="saveResponseVariableAsJson"><flowable:string>false</flowable:string></flowable:field>
             </extensionElements>
         </serviceTask>
+
+        <!-- Parallel Split for SSN & DOCCS -->
+        <parallelGateway id="parallelSplit"/>
+
+        <!-- SSN API -->
+        <serviceTask id="ssnApiTask" name="SSN Validation API" flowable:async="true"
+                     flowable:parallelInSameTransaction="false" flowable:type="http">
+            <extensionElements>
+                <flowable:field name="requestMethod"><flowable:string>POST</flowable:string></flowable:field>
+                <flowable:field name="requestUrl"><flowable:string>http://localhost:9080/case/ssnValidation</flowable:string></flowable:field>
+                <flowable:field name="requestHeaders"><flowable:string>Content-Type: application/json</flowable:string></flowable:field>
+                <flowable:field name="requestBody"><flowable:expression><![CDATA[{ "ssn":"${ssn}" }]]></flowable:expression></flowable:field>
+                <flowable:field name="responseVariableName"><flowable:string>ssnResponse</flowable:string></flowable:field>
+                <flowable:field name="saveResponseVariableAsJson"><flowable:string>true</flowable:string></flowable:field>
+            </extensionElements>
+        </serviceTask>
+
+        <!-- SSN Gateway -->
+        <exclusiveGateway id="ssnGateway" default="ssnManualTask"/>
+        <userTask id="ssnManualTask" name="SSN Manual Review" flowable:assignee="$INITIATOR"
+                  flowable:formKey="detailsvalidationV2" flowable:formFieldValidation="true">
+            <extensionElements>
+                <modeler:activiti-idm-initiator>true</modeler:activiti-idm-initiator>
+            </extensionElements>
+        </userTask>
+
+        <!-- DOCCS API -->
+        <serviceTask id="doccsApiTask" name="DOCCS Validation API" flowable:delegateExpression="${incarcerationValidationService}">
+            <extensionElements>
+                <flowable:field name="requestMethod"><flowable:string>POST</flowable:string></flowable:field>
+                <flowable:field name="requestUrl"><flowable:string>http://localhost:9080/case/prisonerValidation</flowable:string></flowable:field>
+                <flowable:field name="requestHeaders"><flowable:string>Content-Type: application/json</flowable:string></flowable:field>
+                <flowable:field name="requestBody"><flowable:expression><![CDATA[{
+ "firstName":"${firstName}",
+ "lastName":"${lastName}",
+ "dob":"${dateofbirth}",
+ "ssn":"${ssn}",
+ "gender":"${gender}",
+ "processInstanceId": "${execution.processInstanceId}"
+}]]></flowable:expression></flowable:field>
+                <flowable:field name="responseVariableName"><flowable:string>doccsResponse</flowable:string></flowable:field>
+                <flowable:field name="saveResponseVariableAsJson"><flowable:string>true</flowable:string></flowable:field>
+            </extensionElements>
+        </serviceTask>
+
+        <!-- DOCCS Gateway -->
+        <exclusiveGateway id="doccsGateway" default="doccsManualTask"/>
+        <userTask id="doccsManualTask" name="DOCCS Manual Review" flowable:assignee="$INITIATOR"
+                  flowable:formKey="detailsvalidationV2" flowable:formFieldValidation="true">
+            <extensionElements>
+                <modeler:activiti-idm-initiator>true</modeler:activiti-idm-initiator>
+            </extensionElements>
+        </userTask>
+
+        <!-- Review Incarceration -->
+        <userTask id="reviewIncarcerationTask" name="Review Incarceration"
+                  flowable:formKey="reviewIncarcerationForm"
+                  flowable:formFieldValidation="true"
+                  flowable:assignee="$INITIATOR"/>
+
+        <!-- Exclusive Gateway for status branching -->
+        <exclusiveGateway id="reviewIncarcerationGateway" name="Incarceration Status Gateway" />
+
+        <!-- Parallel Join -->
         <inclusiveGateway id="parallelJoin" name="Inclusive Join Gateway" flowable:async="true"/>
-        <endEvent id="endEvent"/>
-        <!-- ================= START FLOW ================= -->
 
-        <sequenceFlow sourceRef="startEvent" targetRef="caseDetailsTask"/>
-        <sequenceFlow sourceRef="caseDetailsTask" targetRef="searchPersonST"/>
-        <sequenceFlow sourceRef="searchPersonST" targetRef="parallelSplit"/>
-
-        <!-- ================= PARALLEL CALLS ================= -->
-
-        <sequenceFlow sourceRef="parallelSplit" targetRef="ssnApiTask"/>
-        <sequenceFlow sourceRef="parallelSplit" targetRef="doccsApiTask"/>
-
-        <!-- SSN FLOW -->
-        <sequenceFlow sourceRef="ssnApiTask" targetRef="ssnGateway"/>
-
-        <sequenceFlow sourceRef="ssnGateway" targetRef="parallelJoin">
-            <conditionExpression xsi:type="tFormalExpression">
-                <![CDATA[${execution.hasVariable("ssnResponse")}]]>
-            </conditionExpression>
-        </sequenceFlow>
-
-        <sequenceFlow sourceRef="ssnGateway" targetRef="ssnManualTask"/>
-        <sequenceFlow sourceRef="ssnManualTask" targetRef="parallelJoin"/>
-
-        <!-- DOCCS FLOW -->
-        <sequenceFlow sourceRef="doccsApiTask" targetRef="doccsGateway"/>
-
-        <sequenceFlow sourceRef="doccsGateway" targetRef="parallelJoin">
-            <conditionExpression xsi:type="tFormalExpression">
-                <![CDATA[${incarcerationStatus == false}]]>
-            </conditionExpression>
-        </sequenceFlow>
-
-        <sequenceFlow sourceRef="doccsGateway" targetRef="doccsManualTask"/>
-        <sequenceFlow sourceRef="doccsManualTask" targetRef="parallelJoin"/>
-
-        <!-- ================= ADDRESS FLOW ================= -->
-
-        <!-- Step 1 -->
-        <sequenceFlow sourceRef="parallelJoin" targetRef="addressEntryTask"/>
-
-        <!-- Step 2 -->
-        <sequenceFlow sourceRef="addressEntryTask" targetRef="postalCodeServiceTask"/>
-
-        <!-- Step 3 -->
-        <sequenceFlow sourceRef="postalCodeServiceTask" targetRef="addressReviewTask"/>
-
-        <!-- Step 4 -->
-        <sequenceFlow sourceRef="addressReviewTask" targetRef="finalReviewTask"/>
-
-        <!-- ================= FINAL ================= -->
-
-        <sequenceFlow sourceRef="finalReviewTask" targetRef="endEvent"/>
-
-
-
-        <!-- Step 1: Address Entry -->
+        <!-- Address Entry -->
         <userTask id="addressEntryTask" name="Enter Address Details"
-                  flowable:formKey="addressForm"
-                  flowable:formFieldValidation="true"/>
+                  flowable:formKey="addressForm" flowable:formFieldValidation="true"/>
 
-        <!-- Step 2: Call SOAP -->
+        <!-- Postal Code SOAP Call -->
         <serviceTask id="postalCodeServiceTask" name="Fetch Postal Code"
-                     flowable:delegateExpression="${postalCodeService}" />
+                     flowable:delegateExpression="${postalCodeService}"/>
 
-
-
-        <!-- Step 3: Review -->
+        <!-- Address Review -->
         <userTask id="addressReviewTask" name="Review Address Details"
-                  flowable:formKey="addressReviewForm"
-                  flowable:formFieldValidation="true"/>
+                  flowable:formKey="addressReviewForm" flowable:formFieldValidation="true"/>
 
+        <!-- Final Review -->
+        <userTask id="finalReviewTask" name="Final Validation Review"
+                  flowable:candidateGroups="stateworkers,managers"
+                  flowable:formKey="detailsvalidationV2" flowable:formFieldValidation="true" flowable:priority="10"/>
 
+        <!-- END -->
+        <endEvent id="endEvent"/>
 
+        <!-- SEQUENCE FLOWS -->
+        <sequenceFlow id="flow-start-to-caseDetails" sourceRef="startEvent" targetRef="caseDetailsTask"/>
+        <sequenceFlow id="flow-caseDetails-to-searchPerson" sourceRef="caseDetailsTask" targetRef="searchPersonST"/>
+        <sequenceFlow id="flow-searchPerson-to-parallelSplit" sourceRef="searchPersonST" targetRef="parallelSplit"/>
 
+        <sequenceFlow id="flow-parallelSplit-to-ssn" sourceRef="parallelSplit" targetRef="ssnApiTask"/>
+        <sequenceFlow id="flow-parallelSplit-to-doccs" sourceRef="parallelSplit" targetRef="doccsApiTask"/>
 
+        <sequenceFlow id="flow-ssn-to-gateway" sourceRef="ssnApiTask" targetRef="ssnGateway"/>
+        <sequenceFlow id="flow-ssnGateway-to-join" sourceRef="ssnGateway" targetRef="parallelJoin">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${execution.hasVariable('ssnResponse')}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="flow-ssnGateway-to-manual" sourceRef="ssnGateway" targetRef="ssnManualTask"/>
 
+        <sequenceFlow id="flow-doccs-to-gateway" sourceRef="doccsApiTask" targetRef="doccsGateway"/>
+        <sequenceFlow id="flow-doccsGateway-to-join" sourceRef="doccsGateway" targetRef="parallelJoin">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${incarcerationStatus == false}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="flow-doccsGateway-to-manual" sourceRef="doccsGateway" targetRef="doccsManualTask"/>
+
+        <sequenceFlow id="flow-ssnManual-to-join" sourceRef="ssnManualTask" targetRef="parallelJoin"/>
+        <sequenceFlow id="flow-doccsManual-to-review" sourceRef="doccsManualTask" targetRef="reviewIncarcerationTask"/>
+        <sequenceFlow id="flow-review-to-gateway" sourceRef="reviewIncarcerationTask" targetRef="reviewIncarcerationGateway"/>
+
+        <sequenceFlow id="flow-to-parallel-if-incarcerated" sourceRef="reviewIncarcerationGateway" targetRef="parallelJoin">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${incarcerationStatus == 'Incarcerated'}]]></conditionExpression>
+        </sequenceFlow>
+
+        <sequenceFlow id="flow-to-parallel-if-not-incarcerated" sourceRef="reviewIncarcerationGateway" targetRef="parallelJoin">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${incarcerationStatus == 'Not Incarcerated'}]]></conditionExpression>
+        </sequenceFlow>
+
+        <sequenceFlow id="flow-to-parallel-if-on-parole" sourceRef="reviewIncarcerationGateway" targetRef="parallelJoin">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${incarcerationStatus == 'On Parole'}]]></conditionExpression>
+        </sequenceFlow>
+
+        <sequenceFlow id="flow-parallelJoin-to-addressEntry" sourceRef="parallelJoin" targetRef="addressEntryTask"/>
+        <sequenceFlow id="flow-addressEntry-to-postal" sourceRef="addressEntryTask" targetRef="postalCodeServiceTask"/>
+        <sequenceFlow id="flow-postal-to-review" sourceRef="postalCodeServiceTask" targetRef="addressReviewTask"/>
+        <sequenceFlow id="flow-review-to-final" sourceRef="addressReviewTask" targetRef="finalReviewTask"/>
+        <sequenceFlow id="flow-final-to-end" sourceRef="finalReviewTask" targetRef="endEvent"/>
 
     </process>
-
 </definitions>

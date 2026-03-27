@@ -50,6 +50,6 @@ public class Person {
     // --- Optional: For Gender Dropdown ---
     // You might have a static list or fetch this from a service
     public List<String> getIncarcerationOptions() {
-        return List.of("Yes", "No", "On Parole");
+        return List.of("Incarcerated", "Not Incarcerated", "On Parole");
     }
 }
