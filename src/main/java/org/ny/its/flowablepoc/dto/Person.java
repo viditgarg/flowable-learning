@@ -1,4 +1,4 @@
-package org.ny.its.dto;
+package org.ny.its.flowablepoc.dto;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

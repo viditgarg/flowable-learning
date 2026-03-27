@@ -1,4 +1,4 @@
-package org.ny.its.entity;
+package org.ny.its.flowablepoc.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;

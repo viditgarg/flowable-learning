@@ -1,15 +1,15 @@
-package org.ny.its.controller;
+package org.ny.its.flowablepoc.controller;
 
 import jakarta.validation.Valid;
 import org.flowable.engine.IdentityService;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.TaskService;
 import org.flowable.task.api.Task;
-import org.ny.its.dto.Person;
-import org.ny.its.dto.ProcessDTO;
-import org.ny.its.dto.TaskDTO;
-import org.ny.its.service.CaseService;
-import org.ny.its.service.WorkflowTaskService;
+import org.ny.its.flowablepoc.dto.Person;
+import org.ny.its.flowablepoc.dto.ProcessDTO;
+import org.ny.its.flowablepoc.dto.TaskDTO;
+import org.ny.its.flowablepoc.service.CaseService;
+import org.ny.its.flowablepoc.service.WorkflowTaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

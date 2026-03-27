@@ -1,4 +1,4 @@
-package org.ny.its.service;
+package org.ny.its.flowablepoc.service;
 
 
 import lombok.RequiredArgsConstructor;
@@ -8,11 +8,11 @@ import org.flowable.engine.RuntimeService;
 import org.flowable.engine.TaskService;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.task.api.Task;
-import org.ny.its.dto.Person;
-import org.ny.its.dto.ProcessDTO;
-import org.ny.its.dto.TaskDTO;
-import org.ny.its.entity.PersonEntity;
-import org.ny.its.repository.PersonRepository;
+import org.ny.its.flowablepoc.dto.Person;
+import org.ny.its.flowablepoc.dto.ProcessDTO;
+import org.ny.its.flowablepoc.dto.TaskDTO;
+import org.ny.its.flowablepoc.entity.PersonEntity;
+import org.ny.its.flowablepoc.repository.PersonRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

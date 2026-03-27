@@ -1,10 +1,10 @@
-package org.ny.its.controller;
+package org.ny.its.flowablepoc.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.idm.api.User;
-import org.ny.its.dto.TaskDTO;
-import org.ny.its.service.WorkflowTaskService;
+import org.ny.its.flowablepoc.dto.TaskDTO;
+import org.ny.its.flowablepoc.service.WorkflowTaskService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

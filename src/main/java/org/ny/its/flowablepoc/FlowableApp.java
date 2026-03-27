@@ -1,4 +1,4 @@
-package org.ny.its;
+package org.ny.its.flowablepoc;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

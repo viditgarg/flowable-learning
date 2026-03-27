@@ -1,4 +1,4 @@
-package org.ny.its.service;
+package org.ny.its.flowablepoc.service;
 
 import lombok.RequiredArgsConstructor;
 import org.flowable.engine.RuntimeService;

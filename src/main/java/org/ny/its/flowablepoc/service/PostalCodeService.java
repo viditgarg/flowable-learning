@@ -1,4 +1,4 @@
-package org.ny.its.service;
+package org.ny.its.flowablepoc.service;
 
 import jakarta.xml.soap.*;
 import org.flowable.engine.delegate.DelegateExecution;
