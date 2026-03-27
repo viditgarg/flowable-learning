@@ -191,12 +191,36 @@ public class CaseController {
         //  taskService.complete(taskId);
         return "redirect:/case/home";
     }
-//    @PostMapping("/searchPerson")
-//    @ResponseBody
-//    public boolean searchPerson(@RequestBody Map<String, Object> map) {
-//        //log.info("searchPerson started for " + map.get("firstName") + " " + map.get("lastName"));
-//        return false;
-//    }
+    @PostMapping("/searchPerson")
+    @ResponseBody
+    public boolean searchPerson(@RequestBody Map<String, Object> map) {
+        //log.info("searchPerson started for " + map.get("firstName") + " " + map.get("lastName"));
+        return false;
+    }
 
+    @PostMapping("/case/completeAddressReview")
+    public String completeAddressReview(@RequestParam String taskId,
+                                        @RequestParam String street,
+                                        @RequestParam String city,
+                                        @RequestParam String state,
+                                        @RequestParam(required = false) String updatePostalCode) {
+
+        Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
+        String processInstanceId = task.getProcessInstanceId();
+
+        // Update the process variables with the possibly edited fields
+        runtimeService.setVariable(processInstanceId, "street", street);
+        runtimeService.setVariable(processInstanceId, "city", city);
+        runtimeService.setVariable(processInstanceId, "state", state);
+
+        if (updatePostalCode != null && !updatePostalCode.isEmpty()) {
+            runtimeService.setVariable(processInstanceId, "postalCode", updatePostalCode);
+        }
+
+        // Complete the review task
+        taskService.complete(taskId);
+
+        return "redirect:/case/dashboard";
+    }
 
 }

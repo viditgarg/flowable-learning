@@ -127,47 +127,85 @@
                 </flowable:field>
             </extensionElements>
         </serviceTask>
-        <endEvent id="endEvent"/>
-        <sequenceFlow id="sequenceFlow-2212202f-49d8-413b-925b-129f82ee74f2" sourceRef="parallelSplit"
-                      targetRef="doccsApiTask"/>
-        <sequenceFlow id="sequenceFlow-727cc1b7-4513-4a6f-8734-d699e77b5bff" sourceRef="ssnApiTask"
-                      targetRef="ssnGateway"/>
-        <sequenceFlow id="sequenceFlow-52c14dfe-22ee-47b3-8940-2c0c8568708f" sourceRef="doccsApiTask"
-                      targetRef="doccsGateway"/>
-        <sequenceFlow id="sequenceFlow-27732c73-792f-4878-9ddf-9847256ef106" sourceRef="parallelSplit"
-                      targetRef="ssnApiTask"/>
-        <sequenceFlow id="sequenceFlow-4929f456-2af7-487e-9913-07c67242c4e4" sourceRef="doccsGateway"
-                      targetRef="doccsManualTask"/>
-        <sequenceFlow id="sequenceFlow-0073ce7e-c930-47ec-bed3-8ba6363aaecd" sourceRef="caseDetailsTask"
-                      targetRef="parallelSplit"/>
-        <sequenceFlow id="sequenceFlow-c6c26704-d0ea-4fb9-bcd3-2e0a3dab877a" sourceRef="startEvent"
-                      targetRef="caseDetailsTask"/>
-        <sequenceFlow id="sequenceFlow-21a7f0f5-87ec-4e2b-ad14-44a7aa37162a" sourceRef="doccsGateway"
-                      targetRef="parallelJoin">
-            <conditionExpression xsi:type="tFormalExpression">${incarcerationStatus == false}
-            </conditionExpression>
-            <!--            <![CDATA[${execution.hasVariable("doccsResponse")}]]-->
-        </sequenceFlow>
-        <sequenceFlow id="sequenceFlow-02d65394-a609-4a97-a66a-90e874eee268" sourceRef="finalReviewTask"
-                      targetRef="endEvent"/>
         <inclusiveGateway id="parallelJoin" name="Inclusive Join Gateway" flowable:async="true"/>
-        <sequenceFlow id="sid-34B014FF-F22E-4736-B2EB-947985611C11" sourceRef="ssnManualTask"
-                      targetRef="parallelJoin"/>
-        <sequenceFlow id="sid-373E00EB-7255-47BB-BFA8-C8E4A8394D37" sourceRef="doccsManualTask"
-                      targetRef="parallelJoin"/>
-        <sequenceFlow id="sequenceFlow-2f74e0ce-defd-453b-b36b-1250fa1d39ee" sourceRef="ssnGateway"
-                      targetRef="parallelJoin">
+        <endEvent id="endEvent"/>
+        <!-- ================= START FLOW ================= -->
+
+        <sequenceFlow sourceRef="startEvent" targetRef="caseDetailsTask"/>
+        <sequenceFlow sourceRef="caseDetailsTask" targetRef="searchPersonST"/>
+        <sequenceFlow sourceRef="searchPersonST" targetRef="parallelSplit"/>
+
+        <!-- ================= PARALLEL CALLS ================= -->
+
+        <sequenceFlow sourceRef="parallelSplit" targetRef="ssnApiTask"/>
+        <sequenceFlow sourceRef="parallelSplit" targetRef="doccsApiTask"/>
+
+        <!-- SSN FLOW -->
+        <sequenceFlow sourceRef="ssnApiTask" targetRef="ssnGateway"/>
+
+        <sequenceFlow sourceRef="ssnGateway" targetRef="parallelJoin">
             <conditionExpression xsi:type="tFormalExpression">
-                <![CDATA[${execution.hasVariable("ssnResponse")}]]></conditionExpression>
+                <![CDATA[${execution.hasVariable("ssnResponse")}]]>
+            </conditionExpression>
         </sequenceFlow>
-        <sequenceFlow id="sequenceFlow-0204b080-2c6a-4cdd-abc9-8b97c2da1e4b" sourceRef="ssnGateway"
-                      targetRef="ssnManualTask"/>
-        <sequenceFlow id="sequenceFlow-6fcd4e09-6c24-4e94-8113-29edc9a17bd2" sourceRef="parallelJoin"
-                      targetRef="finalReviewTask"/>
-        <sequenceFlow id="sid-C8C143E0-E94C-4127-9F72-64E71FD02D64" sourceRef="caseDetailsTask"
-                      targetRef="searchPersonST"/>
-        <sequenceFlow id="searchPersonST-to-parallel-split" sourceRef="searchPersonST"
-                      targetRef="parallelSplit"/>
+
+        <sequenceFlow sourceRef="ssnGateway" targetRef="ssnManualTask"/>
+        <sequenceFlow sourceRef="ssnManualTask" targetRef="parallelJoin"/>
+
+        <!-- DOCCS FLOW -->
+        <sequenceFlow sourceRef="doccsApiTask" targetRef="doccsGateway"/>
+
+        <sequenceFlow sourceRef="doccsGateway" targetRef="parallelJoin">
+            <conditionExpression xsi:type="tFormalExpression">
+                <![CDATA[${incarcerationStatus == false}]]>
+            </conditionExpression>
+        </sequenceFlow>
+
+        <sequenceFlow sourceRef="doccsGateway" targetRef="doccsManualTask"/>
+        <sequenceFlow sourceRef="doccsManualTask" targetRef="parallelJoin"/>
+
+        <!-- ================= ADDRESS FLOW ================= -->
+
+        <!-- Step 1 -->
+        <sequenceFlow sourceRef="parallelJoin" targetRef="addressEntryTask"/>
+
+        <!-- Step 2 -->
+        <sequenceFlow sourceRef="addressEntryTask" targetRef="postalCodeServiceTask"/>
+
+        <!-- Step 3 -->
+        <sequenceFlow sourceRef="postalCodeServiceTask" targetRef="addressReviewTask"/>
+
+        <!-- Step 4 -->
+        <sequenceFlow sourceRef="addressReviewTask" targetRef="finalReviewTask"/>
+
+        <!-- ================= FINAL ================= -->
+
+        <sequenceFlow sourceRef="finalReviewTask" targetRef="endEvent"/>
+
+
+
+        <!-- Step 1: Address Entry -->
+        <userTask id="addressEntryTask" name="Enter Address Details"
+                  flowable:formKey="addressForm"
+                  flowable:formFieldValidation="true"/>
+
+        <!-- Step 2: Call SOAP -->
+        <serviceTask id="postalCodeServiceTask" name="Fetch Postal Code"
+                     flowable:delegateExpression="${postalCodeService}" />
+
+
+
+        <!-- Step 3: Review -->
+        <userTask id="addressReviewTask" name="Review Address Details"
+                  flowable:formKey="addressReviewForm"
+                  flowable:formFieldValidation="true"/>
+
+
+
+
+
+
+
     </process>
 
 </definitions>
