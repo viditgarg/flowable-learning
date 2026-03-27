@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -39,10 +40,6 @@ public class CaseService {
     public static final String CASE_PROCESS_KEY = "case_regV5";
 
     public ProcessInstance startCaseProcess(String processKey) {
-//        Map<String, Object> variables = new HashMap<>();
-//        variables.put("firstName", "Mister");
-//        variables.put("lastName", "Lal");
-
         return runtimeService.startProcessInstanceByKey(CASE_PROCESS_KEY);
     }
 
@@ -52,14 +49,17 @@ public class CaseService {
                         .processDefinitionKey(CASE_PROCESS_KEY)
                         .list();
         return piList.stream().map(
-                p -> new ProcessDTO(
-                        p.getProcessDefinitionKey(),
-                        p.getProcessInstanceId(),
-                        p.getProcessDefinitionName(),
-                        p.getProcessDefinitionId(),
-                        "Test Name",
-                        p.getStartTime()
-                )).toList();
+                p -> {
+                    Map<String, Object> vars = runtimeService.getVariables(p.getProcessInstanceId());
+                    return new ProcessDTO(
+                            p.getProcessDefinitionKey(),
+                            p.getProcessInstanceId(),
+                            p.getProcessDefinitionName(),
+                            p.getProcessDefinitionId(),
+                            vars.get("firstName").toString() + " " + vars.get("lastName").toString(),
+                            p.getStartTime()
+                    );
+                }).toList();
     }
 
     public List<TaskDTO> getAllTasks() {
@@ -74,6 +74,35 @@ public class CaseService {
                         t.getTaskDefinitionKey()
                 )).toList();
         // return taskService.createTaskQuery().list();
+    }
+
+    public String completeTask(String taskId, Model model) {
+        Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
+
+        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
+        String processDefinitionKey = processInstance.getProcessDefinitionKey();
+
+        String nextView = "casedashboard";
+        if (processDefinitionKey != null && processDefinitionKey.equals("case_regV5")) {
+            switch (task.getTaskDefinitionKey()) {
+                case "caseDetailsTask":
+                    log.info("Task Key :" + task.getTaskDefinitionKey());
+                    completeCaseDetailsTask(task);
+                    break;
+                default:
+                    log.info(task.getTaskDefinitionKey());
+
+            }
+            log.info("Process def key is case_regV5 ");
+        } else {
+            log.info("Process def key is other ");
+            taskService.complete(taskId);
+        }
+        return nextView;
+    }
+
+    private void completeCaseDetailsTask(Task task) {
+        taskService.complete(task.getId());
     }
 
     public String cleanAllData() {
@@ -101,7 +130,8 @@ public class CaseService {
                 .orElse(null));
         person.setEmail(Optional.ofNullable(vars.get("email"))
                 .map(Object::toString)
-                .orElse(null)); ;
+                .orElse(null));
+        ;
         person.setGender(Optional.ofNullable(vars.get("gender"))
                 .map(Object::toString)
                 .orElse(null));
@@ -116,16 +146,33 @@ public class CaseService {
                 .filter(s -> !s.isEmpty())
                 .map(LocalDate::parse)
                 .orElse(null));
+        person.setIncarcerationStatus(Optional.ofNullable(vars.get("incarcerationStatus"))
+                .map(Object::toString)
+                .orElse(null));
 
         return person;
     }
 
 
-
-
-
     public void submitCaseRegistration(Person person) {
         log.info("Person details: " + person);
+        PersonEntity savedPerson = savePersonDataIntoRepository(person);
+        log.info("Saved Person Entity ID: " + savedPerson.getId());
+        // Start Flowable process with reference
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("caseId", savedPerson.getId());
+        variables.put("firstName", savedPerson.getFirstName());
+        variables.put("lastName", savedPerson.getLastName());
+        variables.put("ssn", savedPerson.getSsn());
+        variables.put("email", savedPerson.getEmail());
+        variables.put("gender", savedPerson.getGender());
+        variables.put("dateofbirth", savedPerson.getDateOfBirth());
+
+        runtimeService.startProcessInstanceByKey(CASE_PROCESS_KEY, variables);
+
+    }
+
+    private PersonEntity savePersonDataIntoRepository(Person person) {
         PersonEntity entity = new PersonEntity();
         entity.setFirstName(person.getFirstName());
         entity.setLastName(person.getLastName());
@@ -135,19 +182,6 @@ public class CaseService {
         entity.setDateOfBirth(person.getDateofbirth());
         entity.setStatus("IN_PROGRESS");
 
-        PersonEntity saved = personRepository.save(entity);
-        // Start Flowable process with reference
-        Map<String, Object> variables = new HashMap<>();
-        variables.put("caseId", saved.getId());
-        variables.put("firstName", saved.getFirstName());
-        variables.put("lastName", saved.getLastName());
-        variables.put("ssn", saved.getSsn());
-        variables.put("email", saved.getEmail());
-        variables.put("gender", saved.getGender());
-        variables.put("dateofbirth", saved.getDateOfBirth());
-
-        runtimeService.startProcessInstanceByKey(CASE_PROCESS_KEY, variables);
-
-        log.info("Saved case ID: " + saved.getId());
+        return personRepository.save(entity);
     }
 }

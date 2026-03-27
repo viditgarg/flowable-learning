@@ -37,9 +37,19 @@ public class Person {
     @NotNull(message = "Date of birth is required.") // Ensure it's not null
     private LocalDate dateofbirth;
 
+    private String incarcerationStatus;
+
+    private String updateIncarcerationStatus;
+
     // --- Optional: For Gender Dropdown ---
     // You might have a static list or fetch this from a service
     public List<String> getGenderOptions() {
         return List.of("Male", "Female", "Other", "Prefer not to say");
+    }
+
+    // --- Optional: For Gender Dropdown ---
+    // You might have a static list or fetch this from a service
+    public List<String> getIncarcerationOptions() {
+        return List.of("Yes", "No", "On Parole");
     }
 }

@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import org.flowable.engine.IdentityService;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.TaskService;
-import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.task.api.Task;
 import org.ny.its.dto.Person;
 import org.ny.its.dto.ProcessDTO;
@@ -96,14 +95,14 @@ public class CaseController {
     @PostMapping("/prisonerValidation")
     @ResponseBody
     public String prisonerValidation(@RequestBody Map<String, Object> map) {
-        log.info("prisonerValidation started");
+
         String firstName = (String) map.get("firstName");
         String lastName = (String) map.get("lastName");
+        log.info("Validating incarceration with Rikers, DOCCS services for " + firstName + " " + lastName);
         String birthDate = (String) map.get("dob");
         String ssn = (String) map.get("ssn");
         String gender = (String) map.get("gender");
-        log.info("FirstName:" + firstName + " LastName:" + lastName + " BirthDate:" + birthDate + " ssn:" + ssn + " gender:" + gender);
-
+        //call DOCCS & Rikers services by passing ssn, dob and name
         return "true";
 
     }
@@ -120,10 +119,6 @@ public class CaseController {
     @GetMapping("/home")
     public String dashboard(@RequestParam(required = false) String user, Model model) {
         List<ProcessDTO> processList = caseService.getRunningProcesses();
-        //List<ProcessInstance> processes =
-
-        //processes.stream().forEach(ProcessInstance::getProcessDefinitionName);
-
         List<TaskDTO> tasks;
 
         if (user != null && !user.isEmpty()) {
@@ -142,17 +137,45 @@ public class CaseController {
     @PostMapping("/tasks/complete")
     public String completeTask(@RequestParam String taskId, @RequestParam String processInstanceId, Model model) {
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
+        String view = "redirect:/case/home";
 
-        // 2. Fetch process variables
-        Map<String, Object> vars = runtimeService.getVariables(task.getProcessInstanceId());
-        // 4. Send to Thymeleaf form
-        model.addAttribute("person", caseService.getPersonData(processInstanceId));
-        model.addAttribute("taskId", taskId);
 
-        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
-        String processDefinitionKey = processInstance.getProcessDefinitionKey();
-        return "validateCaseForm";
-              //  workflowTaskService.completeTask(taskId, processInstanceId, model);
+        log.info("Task Key :" + task.getTaskDefinitionKey());
+        switch (task.getTaskDefinitionKey()) {
+            case "caseDetailsTask":
+                populateCaseDetailsForValidation(task, model);
+                view = "validateCaseForm";
+                break;
+            case "doccsManualTask":
+                populateCaseDetailsForValidation(task, model);
+                view = "reviewIncarcerationForm";
+                break;
+            case "finalReviewTask":
+
+
+                break;
+            case "ssnManualTask":
+
+
+                break;
+            default:
+                log.info(task.getTaskDefinitionKey());
+
+        }
+        return view;
+        //  workflowTaskService.completeTask(taskId, processInstanceId, model);
+    }
+
+    public void populateCaseDetailsForValidation(Task task, Model model) {
+        model.addAttribute("person", caseService.getPersonData(task.getProcessInstanceId()));
+        model.addAttribute("taskId", task.getId());
+    }
+
+    @PostMapping("/completeValidation")
+    public String completeValidation(@RequestParam String taskId, Model model) {
+
+        taskService.complete(taskId);
+        return "redirect:/case/home";
     }
 
     @GetMapping("/cleanup")
@@ -161,10 +184,19 @@ public class CaseController {
         return caseService.cleanAllData();
     }
 
-    @PostMapping("/searchPerson")
-    @ResponseBody
-    public boolean searchPerson(@RequestBody Map<String, Object> map) {
-        log.info("searchPerson started for " + map.get("firstName") + " " + map.get("lastName"));
-        return false;
+    @PostMapping("/completeIncarcerationReview")
+    public String completeIncarcerationReview(@RequestParam String taskId, Model model, @ModelAttribute("person") Person person) {
+        Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
+        runtimeService.setVariable(task.getProcessInstanceId(), "incarcerationStatus", person.getUpdateIncarcerationStatus());
+        //  taskService.complete(taskId);
+        return "redirect:/case/home";
     }
+//    @PostMapping("/searchPerson")
+//    @ResponseBody
+//    public boolean searchPerson(@RequestBody Map<String, Object> map) {
+//        //log.info("searchPerson started for " + map.get("firstName") + " " + map.get("lastName"));
+//        return false;
+//    }
+
+
 }

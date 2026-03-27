@@ -21,9 +21,8 @@
 <body>
 <div th:replace="fragments/header :: header"></div>
 
-
-<h4 class="center-heading">Validate Case Details</h4>
-<form th:action="@{/case/completeValidation}" method="post" class="form-container">
+<h4 class="center-heading">Review Incarceration Status</h4>
+<form th:action="@{/case/completeIncarcerationReview}" method="post" class="form-container">
     <input type="hidden" name="taskId" th:value="${taskId}"/>
 
     <div class="row mb-3">
@@ -37,13 +36,6 @@
         <label class="col-sm-3 col-form-label">Last Name</label>
         <div class="col-sm-9">
             <input type="text" class="form-control" name="lastName" th:value="${person.lastName}" required>
-        </div>
-    </div>
-
-    <div class="row mb-3">
-        <label class="col-sm-3 col-form-label">Email</label>
-        <div class="col-sm-9">
-            <input type="email" class="form-control" name="email" th:value="${person.email}">
         </div>
     </div>
 
@@ -73,5 +65,25 @@
         </div>
     </div>
 
-    <button type="submit" class="btn btn-success">Validate & Continue</button>
+    <div class="row mb-3">
+        <label class="col-sm-3 col-form-label">Incarcerated</label>
+        <div class="col-sm-9">
+            <input type="text" class="form-control" name="incarcerationStatus" th:value="${person.incarcerationStatus}"
+                   required>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label class="col-sm-3 col-form-label">Update Incarceration Status</label>
+        <div class="col-sm-9">
+            <select name="updateIncarcerationStatus" class="form-control">
+                <option th:each="g : ${person.incarcerationOptions}"
+                        th:value="${g}" th:text="${g}"
+                        th:selected="${g == person.updateIncarcerationStatus}">
+                </option>
+            </select>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-success">Update Incarceration Status</button>
 </form>
