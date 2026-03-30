@@ -92,10 +92,12 @@ public class CaseController {
 
         //log.info("validateSSN started");
         String ssn = (String) map.get("ssn");
-        log.info("SSN:" + ssn + " successfully validated, returning SSN_VALID as Yes");
+
         double randomValue = Math.random();
-        boolean valid = randomValue < 0.5;
-        return false; //randomValue < 0.5;;
+        boolean valid = false;
+        //valid = randomValue < 0.5;
+        log.info("SSN:" + ssn + " successfully validated, returning SSN_VALID as " + valid);
+        return valid; //randomValue < 0.5;;
 
     }
 
@@ -148,26 +150,24 @@ public class CaseController {
 
 
         log.info("Task Key :" + task.getTaskDefinitionKey());
+        populateCaseDetailsForValidation(task, model);
         switch (task.getTaskDefinitionKey()) {
             case CASE_DETAILS_TASK:
-                populateCaseDetailsForValidation(task, model);
                 view = "validateCaseForm";
                 break;
             case DOCCS_MANUAL_TASK:
-                populateCaseDetailsForValidation(task, model);
                 view = "reviewIncarcerationForm";
                 break;
             case FINAL_REVIEW_TASK:
-
-
                 break;
             case SSN_MANUAL_TASK:
-
-
+                view = "reviewSSNForm";
                 break;
-            case REVIEW_INCARCERATION_TASK:
-
-
+            case ADDRESS_ENTRY_TASK:
+                view = "addressForm";
+                break;
+            case ADDRESS_REVIEW_TASK:
+                view = "addressForm";
                 break;
             default:
                 log.info("Default Switch Case, task key::" + task.getTaskDefinitionKey());
@@ -204,6 +204,15 @@ public class CaseController {
         return REDIRECT_CASE_HOME;
     }
 
+    @PostMapping("/completeSSNReview")
+    public String completeSSNReview(@RequestParam String taskId, Model model, @ModelAttribute("person") Person person) {
+        Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
+        runtimeService.setVariable(task.getProcessInstanceId(), "SSN_Valid", person.getUpdateSSNValid());
+        taskService.complete(taskId);
+        log.info("SSN Review Completed, TaskID::" + taskId);
+        return REDIRECT_CASE_HOME;
+    }
+
     @PostMapping("/searchPerson")
     @ResponseBody
     public boolean searchPerson(@RequestBody Map<String, Object> map) {
@@ -211,12 +220,37 @@ public class CaseController {
         return false;
     }
 
-    @PostMapping("/case/completeAddressReview")
+    @PostMapping("/completeAddressReview")
     public String completeAddressReview(@RequestParam String taskId,
                                         @RequestParam String street,
                                         @RequestParam String city,
                                         @RequestParam String state,
                                         @RequestParam(required = false) String updatePostalCode) {
+
+        Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
+        String processInstanceId = task.getProcessInstanceId();
+
+        // Update the process variables with the possibly edited fields
+        runtimeService.setVariable(processInstanceId, STREET, street);
+        runtimeService.setVariable(processInstanceId, CITY, city);
+        runtimeService.setVariable(processInstanceId, STATE, state);
+
+        if (updatePostalCode != null && !updatePostalCode.isEmpty()) {
+            runtimeService.setVariable(processInstanceId, POSTAL_CODE, updatePostalCode);
+        }
+
+        // Complete the review task
+        taskService.complete(taskId);
+
+        return "redirect:/case/dashboard";
+    }
+
+    @PostMapping("/completeAddressTask")
+    public String completeAddressTask(@RequestParam String taskId,
+                                      @RequestParam String street,
+                                      @RequestParam String city,
+                                      @RequestParam String state,
+                                      @RequestParam(required = false) String updatePostalCode) {
 
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         String processInstanceId = task.getProcessInstanceId();

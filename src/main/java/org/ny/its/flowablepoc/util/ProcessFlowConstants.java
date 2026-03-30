@@ -10,7 +10,7 @@ public final class ProcessFlowConstants {
     }
 
     // Process IDs
-    public static final String CASE_REGISTRATION_V5 = "case_regV5";
+    public static final String CASE_REGISTRATION_V5 = "case_regV8";
     public static final String CASE_CREATION_PROCESS = "caseCreationProcess";
 
     // Task Keys
@@ -19,6 +19,8 @@ public final class ProcessFlowConstants {
     public static final String DOCCS_MANUAL_TASK = "doccsManualTask";
     public static final String REVIEW_INCARCERATION_TASK = "reviewIncarcerationTask";
     public static final String FINAL_REVIEW_TASK = "finalReviewTask";
+    public static final String ADDRESS_REVIEW_TASK = "addressReviewTask";
+    public static final String ADDRESS_ENTRY_TASK = "addressEntryTask";
 
     // Process Variables
     public static final String INCARCERATION_STATUS = "incarcerationStatus";

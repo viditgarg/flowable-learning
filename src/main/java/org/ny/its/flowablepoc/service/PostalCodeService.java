@@ -3,7 +3,9 @@ package org.ny.its.flowablepoc.service;
 import jakarta.xml.soap.*;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
+import org.springframework.stereotype.Service;
 
+@Service("postalCodeService")
 public class PostalCodeService implements JavaDelegate {
 
     @Override
@@ -17,20 +19,21 @@ public class PostalCodeService implements JavaDelegate {
         }
 
         try {
-                SOAPConnection soapConnection = SOAPConnectionFactory.newInstance().createConnection();
-                String url = "http://www.crcind.com/csp/samples/SOAP.Demo.cls";
-                // Call SOAP webservice to get postal code
-                SOAPMessage request = createSOAPRequest(city, state);
-                SOAPMessage response = soapConnection.call(request, url);
-                String postalCode = response.getSOAPBody().getTextContent();
-                execution.setVariable("postalCode", postalCode);
-            } catch (Exception e) {
-                e.printStackTrace();
-                execution.setVariable("postalCode", "");
-            }
+            SOAPConnection soapConnection = SOAPConnectionFactory.newInstance().createConnection();
+            String url = "http://www.crcind.com/csp/samples/SOAP.Demo.cls";
+            // Call SOAP webservice to get postal code
+            SOAPMessage request = createSOAPRequest(city, state);
+            SOAPMessage response = soapConnection.call(request, url);
+            String postalCode = response.getSOAPBody().getTextContent();
+            execution.setVariable("postalCode", postalCode);
+        } catch (Exception e) {
+            e.printStackTrace();
+            execution.setVariable("postalCode", "");
+        }
 
         //execution.setVariable("postalCode", postalCode);
     }
+
     private SOAPMessage createSOAPRequest(String city, String state) throws Exception {
 
         MessageFactory messageFactory = MessageFactory.newInstance();
@@ -51,6 +54,7 @@ public class PostalCodeService implements JavaDelegate {
         soapMessage.saveChanges();
         return soapMessage;
     }
+
     private String callPostalCodeSoapService(String city, String state) {
         // Example: Use Spring WebServiceTemplate or JAX-WS client
         // For now, return a dummy value

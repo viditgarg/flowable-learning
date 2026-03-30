@@ -12,7 +12,7 @@
                 http://www.omg.org/spec/BPMN/20100524/MODEL
                 http://www.omg.org/spec/BPMN/2.0/20100501/BPMN20.xsd">
 
-    <process id="case_regV5" name="Case Registration V5" isExecutable="true">
+    <process id="case_regV8" name="Case Registration V8" isExecutable="true">
 
         <!-- START -->
         <startEvent id="startEvent" flowable:initiator="initiator" flowable:formKey="caseregistrationform"
@@ -83,11 +83,15 @@
                     <flowable:string><![CDATA[true]]></flowable:string>
                 </flowable:field>
                 <flowable:field name="saveResponseVariableAsJson">
-                    <flowable:string>true</flowable:string>
+                    <flowable:string>false</flowable:string>
                 </flowable:field>
+                
             </extensionElements>
         </serviceTask>
-
+        <boundaryEvent id="ssnApiError" attachedToRef="ssnApiTask" cancelActivity="true">
+            <errorEventDefinition/>
+        </boundaryEvent>
+        <sequenceFlow id="flow-ssnError-to-manual" sourceRef="ssnApiError" targetRef="ssnManualTask"/>
         <!-- SSN Gateway -->
         <exclusiveGateway id="ssnGateway" default="flow-ssnGateway-to-manual" name="SSN API Response Gateway"/>
         <userTask id="ssnManualTask" name="SSN Manual Review" flowable:candidateGroups="stateworkers,managers"
