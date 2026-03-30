@@ -165,9 +165,15 @@ public class CaseController {
                 break;
             case ADDRESS_ENTRY_TASK:
                 view = "addressForm";
+                model.addAttribute("postalCode", runtimeService.getVariable(processInstanceId, "postalCode"));
                 break;
             case ADDRESS_REVIEW_TASK:
-                view = "addressForm";
+                model.addAttribute("street", runtimeService.getVariable(processInstanceId, "street"));
+                model.addAttribute("postalCode", runtimeService.getVariable(processInstanceId, "postalCode"));
+                model.addAttribute("city", runtimeService.getVariable(processInstanceId, "city"));
+                model.addAttribute("state", runtimeService.getVariable(processInstanceId, "state"));
+
+                view = "addressReviewForm";
                 break;
             default:
                 log.info("Default Switch Case, task key::" + task.getTaskDefinitionKey());
@@ -242,7 +248,7 @@ public class CaseController {
         // Complete the review task
         taskService.complete(taskId);
 
-        return "redirect:/case/dashboard";
+        return REDIRECT_CASE_HOME;
     }
 
     @PostMapping("/completeAddressTask")
@@ -250,6 +256,7 @@ public class CaseController {
                                       @RequestParam String street,
                                       @RequestParam String city,
                                       @RequestParam String state,
+                                      @RequestParam String postalCode,
                                       @RequestParam(required = false) String updatePostalCode) {
 
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
@@ -259,15 +266,13 @@ public class CaseController {
         runtimeService.setVariable(processInstanceId, STREET, street);
         runtimeService.setVariable(processInstanceId, CITY, city);
         runtimeService.setVariable(processInstanceId, STATE, state);
+        runtimeService.setVariable(processInstanceId, POSTAL_CODE, postalCode);
 
-        if (updatePostalCode != null && !updatePostalCode.isEmpty()) {
-            runtimeService.setVariable(processInstanceId, POSTAL_CODE, updatePostalCode);
-        }
 
         // Complete the review task
         taskService.complete(taskId);
 
-        return "redirect:/case/dashboard";
+        return REDIRECT_CASE_HOME;
     }
 
 }

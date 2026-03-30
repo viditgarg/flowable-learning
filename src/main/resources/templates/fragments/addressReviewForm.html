@@ -2,47 +2,56 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Address Details</title>
+    <title>Review Address Details</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
+
 <div th:replace="fragments/header :: header"></div>
 
-<h4 class="center-heading">Enter Address Details</h4>
+<h4 class="text-center mt-4">Review Address Details</h4>
 
-<form th:action="@{/case/completeAddressTask}" method="post" class="form-container">
+<form th:action="@{/case/completeAddressReviewTask}" method="post" class="container mt-4">
+
     <input type="hidden" name="taskId" th:value="${taskId}"/>
 
+    <!-- Street -->
     <div class="row mb-3">
         <label class="col-sm-3 col-form-label">Street</label>
         <div class="col-sm-9">
-            <input type="text" class="form-control" name="street" th:value="${street}" required>
+            <input type="text" class="form-control" th:value="${street}" readonly>
         </div>
     </div>
 
+    <!-- City -->
     <div class="row mb-3">
         <label class="col-sm-3 col-form-label">City</label>
         <div class="col-sm-9">
-            <input type="text" class="form-control" name="city" th:value="${city}" >
+            <input type="text" class="form-control" th:value="${city}" readonly>
         </div>
     </div>
 
+    <!-- State -->
     <div class="row mb-3">
         <label class="col-sm-3 col-form-label">State</label>
         <div class="col-sm-9">
-            <input type="text" class="form-control" name="state" th:value="${state}" >
+            <input type="text" class="form-control" th:value="${state}" readonly>
         </div>
     </div>
 
+    <!-- Postal Code -->
     <div class="row mb-3">
         <label class="col-sm-3 col-form-label">Postal Code</label>
         <div class="col-sm-9">
-            <input type="text" class="form-control" name="postalCode" th:value="${postalCode}" required>
+            <input type="text" class="form-control" th:value="${postalCode}" readonly>
         </div>
     </div>
 
-    <button type="submit" class="btn btn-success">Save & Fetch Postal Code</button>
+    <!-- Buttons -->
+    <div class="text-center">
+        <button type="submit" class="btn btn-success">Confirm</button>
+    </div>
+
 </form>
 
 </body>
