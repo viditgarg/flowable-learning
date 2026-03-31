@@ -43,7 +43,6 @@ public class CaseController {
         this.identityService = identityService;
     }
 
-
     @PostMapping("/start")
     public String startNewCaseProcess() {
         caseService.startCaseProcess("caseCreationProcess");
@@ -60,13 +59,14 @@ public class CaseController {
 
     @PostMapping("/submitRegistration")
     public String submitCaseRegistration(@Valid @ModelAttribute("person") Person person, // @Valid triggers validation
-                                         BindingResult bindingResult,
-                                         Model model) {
+            BindingResult bindingResult,
+            Model model) {
         if (bindingResult.hasErrors()) {
             // If validation fails, return to the form page
             // Errors are automatically available in the template via #fields
             // Ensure any lists needed for dropdowns are re-added if necessary
-            // model.addAttribute("genderOptions", List.of("Male", "Female", "Other")); // If needed
+            // model.addAttribute("genderOptions", List.of("Male", "Female", "Other")); //
+            // If needed
             return "new_registration";
         }
         caseService.submitCaseRegistration(person);
@@ -90,14 +90,14 @@ public class CaseController {
     @ResponseBody
     public boolean validateSSN(@RequestBody Map<String, Object> map) {
 
-        //log.info("validateSSN started");
+        // log.info("validateSSN started");
         String ssn = (String) map.get("ssn");
 
         double randomValue = Math.random();
         boolean valid = false;
-        //valid = randomValue < 0.5;
+        // valid = randomValue < 0.5;
         log.info("SSN:" + ssn + " successfully validated, returning SSN_VALID as " + valid);
-        return valid; //randomValue < 0.5;;
+        return valid; // randomValue < 0.5;;
 
     }
 
@@ -111,7 +111,7 @@ public class CaseController {
         String birthDate = (String) map.get("dob");
         String ssn = (String) map.get("ssn");
         String gender = (String) map.get("gender");
-        //call DOCCS & Rikers services by passing ssn, dob and name
+        // call DOCCS & Rikers services by passing ssn, dob and name
         return "true";
 
     }
@@ -148,7 +148,6 @@ public class CaseController {
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         String view = REDIRECT_CASE_HOME;
 
-
         log.info("Task Key :" + task.getTaskDefinitionKey());
         populateCaseDetailsForValidation(task, model);
         switch (task.getTaskDefinitionKey()) {
@@ -159,6 +158,8 @@ public class CaseController {
                 view = "reviewIncarcerationForm";
                 break;
             case FINAL_REVIEW_TASK:
+                populateAddressDetails(task, model);
+                view = "finalReviewForm";
                 break;
             case SSN_MANUAL_TASK:
                 view = "reviewSSNForm";
@@ -168,11 +169,7 @@ public class CaseController {
                 model.addAttribute("postalCode", runtimeService.getVariable(processInstanceId, "postalCode"));
                 break;
             case ADDRESS_REVIEW_TASK:
-                model.addAttribute("street", runtimeService.getVariable(processInstanceId, "street"));
-                model.addAttribute("postalCode", runtimeService.getVariable(processInstanceId, "postalCode"));
-                model.addAttribute("city", runtimeService.getVariable(processInstanceId, "city"));
-                model.addAttribute("state", runtimeService.getVariable(processInstanceId, "state"));
-
+                populateAddressDetails(task, model);
                 view = "addressReviewForm";
                 break;
             default:
@@ -180,12 +177,25 @@ public class CaseController {
 
         }
         return view;
-        //  workflowTaskService.completeTask(taskId, processInstanceId, model);
+        // workflowTaskService.completeTask(taskId, processInstanceId, model);
     }
 
-    public void populateCaseDetailsForValidation(Task task, Model model) {
+    @PostMapping("/completeCaseReviewTask")
+    public String completeCaseReviewTask(@RequestParam String taskId) {
+        taskService.complete(taskId);
+        return REDIRECT_CASE_HOME;
+    }
+
+    private void populateCaseDetailsForValidation(Task task, Model model) {
         model.addAttribute("person", caseService.getPersonData(task.getProcessInstanceId()));
         model.addAttribute("taskId", task.getId());
+    }
+
+    private void populateAddressDetails(Task task, Model model) {
+        model.addAttribute("street", runtimeService.getVariable(task.getProcessInstanceId(), "street"));
+        model.addAttribute("postalCode", runtimeService.getVariable(task.getProcessInstanceId(), "postalCode"));
+        model.addAttribute("city", runtimeService.getVariable(task.getProcessInstanceId(), "city"));
+        model.addAttribute("state", runtimeService.getVariable(task.getProcessInstanceId(), "state"));
     }
 
     @PostMapping("/completeValidation")
@@ -202,9 +212,11 @@ public class CaseController {
     }
 
     @PostMapping("/completeIncarcerationReview")
-    public String completeIncarcerationReview(@RequestParam String taskId, Model model, @ModelAttribute("person") Person person) {
+    public String completeIncarcerationReview(@RequestParam String taskId, Model model,
+            @ModelAttribute("person") Person person) {
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
-        runtimeService.setVariable(task.getProcessInstanceId(), "incarcerationStatus", person.getUpdateIncarcerationStatus());
+        runtimeService.setVariable(task.getProcessInstanceId(), "incarcerationStatus",
+                person.getUpdateIncarcerationStatus());
         taskService.complete(taskId);
         log.info("Incarceration Review Completed, TaskID::" + taskId);
         return REDIRECT_CASE_HOME;
@@ -222,16 +234,17 @@ public class CaseController {
     @PostMapping("/searchPerson")
     @ResponseBody
     public boolean searchPerson(@RequestBody Map<String, Object> map) {
-        //log.info("searchPerson started for " + map.get("firstName") + " " + map.get("lastName"));
+        // log.info("searchPerson started for " + map.get("firstName") + " " +
+        // map.get("lastName"));
         return false;
     }
 
     @PostMapping("/completeAddressReview")
     public String completeAddressReview(@RequestParam String taskId,
-                                        @RequestParam String street,
-                                        @RequestParam String city,
-                                        @RequestParam String state,
-                                        @RequestParam(required = false) String updatePostalCode) {
+            @RequestParam String street,
+            @RequestParam String city,
+            @RequestParam String state,
+            @RequestParam(required = false) String updatePostalCode) {
 
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         String processInstanceId = task.getProcessInstanceId();
@@ -253,11 +266,11 @@ public class CaseController {
 
     @PostMapping("/completeAddressTask")
     public String completeAddressTask(@RequestParam String taskId,
-                                      @RequestParam String street,
-                                      @RequestParam String city,
-                                      @RequestParam String state,
-                                      @RequestParam String postalCode,
-                                      @RequestParam(required = false) String updatePostalCode) {
+            @RequestParam String street,
+            @RequestParam String city,
+            @RequestParam String state,
+            @RequestParam String postalCode,
+            @RequestParam(required = false) String updatePostalCode) {
 
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         String processInstanceId = task.getProcessInstanceId();
@@ -267,7 +280,6 @@ public class CaseController {
         runtimeService.setVariable(processInstanceId, CITY, city);
         runtimeService.setVariable(processInstanceId, STATE, state);
         runtimeService.setVariable(processInstanceId, POSTAL_CODE, postalCode);
-
 
         // Complete the review task
         taskService.complete(taskId);
