@@ -27,7 +27,6 @@ public class Person {
     @NotEmpty(message = "Please select a gender.") // Ensure a gender is chosen (not the default empty option)
     private String gender;
 
-
     // If stored as String (often recommended for IDs like SSN):
     @NotEmpty(message = "SSN is required.")
     @Pattern(regexp = "\\d{5}", message = "SSN must be exactly 5 digits.") // Use regex for format
@@ -44,6 +43,8 @@ public class Person {
     private String ssnValid;
 
     private String updateSSNValid;
+
+    private String ssnInWords;
 
     // --- Optional: For Gender Dropdown ---
     // You might have a static list or fetch this from a service

@@ -9,6 +9,7 @@ import org.ny.its.flowablepoc.dto.Person;
 import org.ny.its.flowablepoc.dto.ProcessDTO;
 import org.ny.its.flowablepoc.dto.TaskDTO;
 import org.ny.its.flowablepoc.service.CaseService;
+import org.ny.its.flowablepoc.service.SimpleSoapService;
 import org.ny.its.flowablepoc.service.WorkflowTaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,9 @@ public class CaseController {
     private CaseService caseService;
     @Autowired
     private WorkflowTaskService workflowTaskService;
+
+    @Autowired
+    private SimpleSoapService simpleSoapService;
 
     private final RuntimeService runtimeService;
     private final TaskService taskService;
@@ -92,6 +96,8 @@ public class CaseController {
 
         // log.info("validateSSN started");
         String ssn = (String) map.get("ssn");
+        int ssn_digits = Integer.parseInt(ssn);
+        String ssn_words = simpleSoapService.convert(ssn_digits);
 
         double randomValue = Math.random();
         boolean valid = false;

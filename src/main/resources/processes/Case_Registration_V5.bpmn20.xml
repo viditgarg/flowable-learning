@@ -38,12 +38,13 @@
                 </flowable:field>
                 <flowable:field name="requestBody">
                     <flowable:expression><![CDATA[{
- "firstName":"${firstName}",
- "lastName":"${lastName}",
- "dob":"${dateofbirth}",
- "ssn":"${ssn}",
- "gender":"${gender}"
-}]]></flowable:expression>
+                        "firstName":"${firstName}",
+                        "lastName":"${lastName}",
+                        "dob":"${dateofbirth}",
+                        "ssn":"${ssn}",
+                        "gender":"${gender}"
+                        }]]>
+                    </flowable:expression>
                 </flowable:field>
                 <flowable:field name="responseVariableName">
                     <flowable:string>personExist</flowable:string>
@@ -131,7 +132,8 @@
                           default="flow-to-parallel-if-not-incarcerated"/>
 
         <!-- Parallel Join -->
-        <inclusiveGateway id="parallelJoin" name="Inclusive Join Gateway" flowable:async="true"/>
+        <parallelGateway id="parallelJoin" name="Inclusive Join Gateway" /> 
+        <!-- flowable:async="true"/> -->>
 
         <!-- Address Entry -->
         <userTask id="addressEntryTask" name="Enter Address Details"
