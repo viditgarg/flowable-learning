@@ -42,12 +42,8 @@
     <div class="row mb-3">
         <label class="col-sm-3 col-form-label">Gender</label>
         <div class="col-sm-9">
-            <select name="gender" class="form-control">
-                <option th:each="g : ${person.genderOptions}"
-                        th:value="${g}" th:text="${g}"
-                        th:selected="${g == person.gender}">
-                </option>
-            </select>
+            <input type="text" class="form-control" name="gender" th:value="${person.gender}" readonly>
+
         </div>
     </div>
 

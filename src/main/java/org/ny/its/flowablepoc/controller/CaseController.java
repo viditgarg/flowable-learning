@@ -171,7 +171,9 @@ public class CaseController {
                 view = "reviewSSNForm";
                 break;
             case ISSUES_REVIEW_TASK:
-                view = "reviewSSNForm";
+                view = "issuesReviewForm";
+                model.addAttribute("ssnValid", runtimeService.getVariable(processInstanceId, "SSN_Valid"));
+                model.addAttribute("incarceratedStatus", runtimeService.getVariable(processInstanceId, "incarcerationStatus"));
                 break;
             case ADDRESS_ENTRY_TASK:
                 view = "addressForm";
@@ -288,6 +290,7 @@ public class CaseController {
     private void populateCaseDetailsForValidation(Task task, Model model) {
         model.addAttribute("person", caseService.getPersonData(task.getProcessInstanceId()));
         model.addAttribute("taskId", task.getId());
+        model.addAttribute("ssn_valid", runtimeService.getVariable(task.getProcessInstanceId(), "SSN_Valid"));
     }
 
     private void populateAddressDetails(Task task, Model model) {

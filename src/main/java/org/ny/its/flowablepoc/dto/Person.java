@@ -55,11 +55,11 @@ public class Person {
     // --- Optional: For Gender Dropdown ---
     // You might have a static list or fetch this from a service
     public List<String> getIncarcerationOptions() {
-        return List.of("Incarcerated", "Not Incarcerated", "On Parole");
+        return List.of("Select","Incarcerated", "Not Incarcerated", "On Parole");
     }
 
     // You might have a static list or fetch this from a service
     public List<String> getSsnValidationOptions() {
-        return List.of("true", "false");
+        return List.of("Select","true", "false");
     }
 }

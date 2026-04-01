@@ -21,7 +21,7 @@
 <body>
 <div th:replace="fragments/header :: header"></div>
 
-<h4 class="center-heading">Review Incarceration Status</h4>
+<h4 class="center-heading">Review SSN Status</h4>
 <form th:action="@{/case/completeSSNReview}" method="post" class="form-container" th:object="${person}">
 
     <input type="hidden" name="taskId" th:value="${taskId}"/>
@@ -67,15 +67,15 @@
     </div>
 
     <div class="row mb-3">
-        <label class="col-sm-3 col-form-label">Incarcerated</label>
+        <label class="col-sm-3 col-form-label">Current Status of SSN</label>
         <div class="col-sm-9">
-            <input type="text" class="form-control" name="incarcerationStatus" th:value="${person.incarcerationStatus}"
+            <input type="text" class="form-control" name="ssn_valid" th:value="${ssn_valid}"
                    readonly>
         </div>
     </div>
 
     <div class="row mb-3">
-        <label class="col-sm-3 col-form-label">Update SSN Valid</label>
+        <label class="col-sm-3 col-form-label">Update SSN Validation Status</label>
         <div class="col-sm-9">
             <select th:field="*{updateSSNValid}" class="form-control">
                 <option th:each="g : ${person.ssnValidationOptions}"
