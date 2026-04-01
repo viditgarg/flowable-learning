@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Service;
 
@@ -32,8 +34,8 @@ public class SimpleSoapService {
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "text/xml; charset=utf-8");
             conn.setRequestProperty("SOAPAction", SOAP_ACTION);
-            conn.setConnectTimeout(5000);
-            conn.setReadTimeout(5000);
+            conn.setConnectTimeout(25000);
+            conn.setReadTimeout(25000);
             conn.setDoOutput(true);
 
             try (OutputStream os = conn.getOutputStream()) {
@@ -53,13 +55,18 @@ public class SimpleSoapService {
             }
 
             String res = response.toString();
-
-            // Simple parsing (no DOM needed!)
-            if (res.contains("<NumberToWordsResult>")) {
-                return res.split("<NumberToWordsResult>")[1]
-                        .split("</NumberToWordsResult>")[0]
-                        .trim();
+            // Regex to extract <NumberToWordsResult> content
+            Pattern pattern = Pattern.compile("<(?:\\w+:)?NumberToWordsResult>(.*?)</(?:\\w+:)?NumberToWordsResult>");
+            Matcher matcher = pattern.matcher(res);
+            if (matcher.find()) {
+                return matcher.group(1).trim();
             }
+//            // Simple parsing (no DOM needed!)
+//            if (res.contains("<NumberToWordsResult>")) {
+//                return res.split("<NumberToWordsResult>")[1]
+//                        .split("</NumberToWordsResult>")[0]
+//                        .trim();
+//            }
 
             return "Conversion failed";
 

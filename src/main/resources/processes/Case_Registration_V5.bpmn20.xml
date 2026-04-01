@@ -145,7 +145,8 @@
 
         <!-- Postal Code SOAP Call -->
         <serviceTask id="postalCodeServiceTask" name="Fetch Postal Code"
-                     flowable:delegateExpression="${postalCodeService}"/>
+                     flowable:delegateExpression="${postalCodeService}"
+                     flowable:async="false"/>
 
         <!-- Address Review -->
         <userTask id="addressReviewTask" name="Review Address Details"

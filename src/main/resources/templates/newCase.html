@@ -23,7 +23,9 @@
 
 
 <h4 class="center-heading">Register New Case</h4>
-
+<div th:if="${errorMessage}" class="alert alert-danger">
+    <p th:text="${errorMessage}"></p>
+</div>
 <form th:action="@{/case/submitRegistration}" th:object="${person}" method="post" class="form-container">
     <!-- First Name -->
     <div class="form-row">

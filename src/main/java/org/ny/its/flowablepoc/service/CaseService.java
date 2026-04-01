@@ -12,6 +12,7 @@ import org.ny.its.flowablepoc.dto.Person;
 import org.ny.its.flowablepoc.dto.ProcessDTO;
 import org.ny.its.flowablepoc.dto.TaskDTO;
 import org.ny.its.flowablepoc.entity.PersonEntity;
+import org.ny.its.flowablepoc.exception.DuplicateSsnException;
 import org.ny.its.flowablepoc.repository.PersonRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -156,7 +157,21 @@ public class CaseService {
 
     public void submitCaseRegistration(Person person) {
         log.info("Person details: " + person);
-        PersonEntity savedPerson = savePersonDataIntoRepository(person);
+        PersonEntity savedPerson = null;
+        try {
+            // Try to save the person
+            savedPerson = savePersonDataIntoRepository(person);
+            log.info("Saved Person Entity ID: {}", savedPerson.getId());
+
+        } catch (IllegalStateException e) {
+            // Handle duplicate SSN gracefully
+            log.warn("Duplicate SSN detected: {}", person.getSsn());
+            log.warn("Message: {}", e.getMessage());
+
+            // You can throw a custom exception or let controller handle it
+            throw new DuplicateSsnException(e.getMessage());
+        }
+
         log.info("Saved Person Entity ID: " + savedPerson.getId());
         // Start Flowable process with reference
         Map<String, Object> variables = new HashMap<>();
@@ -172,7 +187,17 @@ public class CaseService {
 
     }
 
-    private PersonEntity savePersonDataIntoRepository(Person person) {
+    private PersonEntity savePersonDataIntoRepository(Person person) throws IllegalStateException {
+        // Step 1: check if SSN already exists
+        boolean exists = personRepository.existsBySsn(person.getSsn());
+
+        if (exists) {
+            // SSN already exists, do NOT overwrite
+            throw new IllegalStateException(
+                    "Person with SSN " + person.getSsn() + " already exists."
+            );
+        }
+
         PersonEntity entity = new PersonEntity();
         entity.setFirstName(person.getFirstName());
         entity.setLastName(person.getLastName());

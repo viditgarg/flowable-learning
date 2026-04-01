@@ -8,6 +8,7 @@ import org.flowable.task.api.Task;
 import org.ny.its.flowablepoc.dto.Person;
 import org.ny.its.flowablepoc.dto.ProcessDTO;
 import org.ny.its.flowablepoc.dto.TaskDTO;
+import org.ny.its.flowablepoc.exception.DuplicateSsnException;
 import org.ny.its.flowablepoc.service.CaseService;
 import org.ny.its.flowablepoc.service.SimpleSoapService;
 import org.ny.its.flowablepoc.service.WorkflowTaskService;
@@ -73,7 +74,18 @@ public class CaseController {
             // If needed
             return "new_registration";
         }
-        caseService.submitCaseRegistration(person);
+        try {
+            caseService.submitCaseRegistration(person);
+            model.addAttribute("successMessage", "Case registered successfully!");
+        }catch (DuplicateSsnException e){
+            // User-friendly message
+            model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("person", person); // Keep form data
+            return "newCase";
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
 
         return REDIRECT_CASE_HOME;
 
@@ -300,5 +312,6 @@ public class CaseController {
         model.addAttribute("postalCode", runtimeService.getVariable(task.getProcessInstanceId(), "postalCode"));
         model.addAttribute("city", runtimeService.getVariable(task.getProcessInstanceId(), "city"));
         model.addAttribute("state", runtimeService.getVariable(task.getProcessInstanceId(), "state"));
+        model.addAttribute("postalCodeInWords", runtimeService.getVariable(task.getProcessInstanceId(), "postalCodeInWords") );
     }
 }
