@@ -81,12 +81,15 @@
                     <flowable:string>SSN_Valid</flowable:string>
                 </flowable:field>
                 <flowable:field name="saveResponseParameters">
-                    <flowable:string><![CDATA[true]]></flowable:string>
+                    <flowable:string>false</flowable:string>
                 </flowable:field>
                 <flowable:field name="saveResponseVariableAsJson">
                     <flowable:string>false</flowable:string>
                 </flowable:field>
-                
+                <!--IMPORTANT: avoid 5s timeout -->
+                <flowable:field name="requestTimeout">
+                    <flowable:string>15000</flowable:string>
+                </flowable:field>
             </extensionElements>
         </serviceTask>
         <boundaryEvent id="ssnApiError" attachedToRef="ssnApiTask" cancelActivity="true">
