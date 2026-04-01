@@ -225,7 +225,7 @@ public class CaseController {
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         runtimeService.setVariable(task.getProcessInstanceId(), "SSN_Valid", person.getUpdateSSNValid());
         taskService.complete(taskId);
-        log.info("SSN Review Completed, TaskID::" + taskId);
+        log.info("SSN Review Completed, TaskID::" + taskId+" SSN Valid::"+person.getUpdateSSNValid());
         return REDIRECT_CASE_HOME;
     }
 

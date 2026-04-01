@@ -22,7 +22,8 @@
 <div th:replace="fragments/header :: header"></div>
 
 <h4 class="center-heading">Review Incarceration Status</h4>
-<form th:action="@{/case/completeSSNReview}" method="post" class="form-container">
+<form th:action="@{/case/completeSSNReview}" method="post" class="form-container" th:object="${person}">
+
     <input type="hidden" name="taskId" th:value="${taskId}"/>
 
     <div class="row mb-3">
@@ -76,10 +77,9 @@
     <div class="row mb-3">
         <label class="col-sm-3 col-form-label">Update SSN Valid</label>
         <div class="col-sm-9">
-            <select name="ssnValidation" class="form-control">
+            <select th:field="*{updateSSNValid}" class="form-control">
                 <option th:each="g : ${person.ssnValidationOptions}"
-                        th:value="${g}" th:text="${g}"
-                        th:selected="${g == person.updateSSNValid}">
+                        th:value="${g}" th:text="${g}">
                 </option>
             </select>
         </div>

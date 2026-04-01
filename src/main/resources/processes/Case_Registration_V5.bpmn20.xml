@@ -132,7 +132,7 @@
                           default="flow-to-parallel-if-not-incarcerated"/>
 
         <!-- Parallel Join -->
-        <parallelGateway id="parallelJoin" name="Inclusive Join Gateway" /> 
+        <inclusiveGateway id="parallelJoin" name="Inclusive Join Gateway" />
         <!-- flowable:async="true"/> -->
 
         <!-- Address Entry -->
