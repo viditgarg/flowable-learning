@@ -133,7 +133,7 @@
 
         <!-- Parallel Join -->
         <parallelGateway id="parallelJoin" name="Inclusive Join Gateway" /> 
-        <!-- flowable:async="true"/> -->>
+        <!-- flowable:async="true"/> -->
 
         <!-- Address Entry -->
         <userTask id="addressEntryTask" name="Enter Address Details"

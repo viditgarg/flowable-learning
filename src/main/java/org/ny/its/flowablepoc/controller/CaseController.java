@@ -170,6 +170,9 @@ public class CaseController {
             case SSN_MANUAL_TASK:
                 view = "reviewSSNForm";
                 break;
+            case ISSUES_REVIEW_TASK:
+                view = "reviewSSNForm";
+                break;
             case ADDRESS_ENTRY_TASK:
                 view = "addressForm";
                 model.addAttribute("postalCode", runtimeService.getVariable(processInstanceId, "postalCode"));
@@ -192,18 +195,6 @@ public class CaseController {
         return REDIRECT_CASE_HOME;
     }
 
-    private void populateCaseDetailsForValidation(Task task, Model model) {
-        model.addAttribute("person", caseService.getPersonData(task.getProcessInstanceId()));
-        model.addAttribute("taskId", task.getId());
-    }
-
-    private void populateAddressDetails(Task task, Model model) {
-        model.addAttribute("street", runtimeService.getVariable(task.getProcessInstanceId(), "street"));
-        model.addAttribute("postalCode", runtimeService.getVariable(task.getProcessInstanceId(), "postalCode"));
-        model.addAttribute("city", runtimeService.getVariable(task.getProcessInstanceId(), "city"));
-        model.addAttribute("state", runtimeService.getVariable(task.getProcessInstanceId(), "state"));
-    }
-
     @PostMapping("/completeValidation")
     public String completeValidation(@RequestParam String taskId, Model model) {
 
@@ -221,6 +212,7 @@ public class CaseController {
     public String completeIncarcerationReview(@RequestParam String taskId, Model model,
             @ModelAttribute("person") Person person) {
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
+
         runtimeService.setVariable(task.getProcessInstanceId(), "incarcerationStatus",
                 person.getUpdateIncarcerationStatus());
         taskService.complete(taskId);
@@ -291,6 +283,18 @@ public class CaseController {
         taskService.complete(taskId);
 
         return REDIRECT_CASE_HOME;
+    }
+
+    private void populateCaseDetailsForValidation(Task task, Model model) {
+        model.addAttribute("person", caseService.getPersonData(task.getProcessInstanceId()));
+        model.addAttribute("taskId", task.getId());
+    }
+
+    private void populateAddressDetails(Task task, Model model) {
+        model.addAttribute("street", runtimeService.getVariable(task.getProcessInstanceId(), "street"));
+        model.addAttribute("postalCode", runtimeService.getVariable(task.getProcessInstanceId(), "postalCode"));
+        model.addAttribute("city", runtimeService.getVariable(task.getProcessInstanceId(), "city"));
+        model.addAttribute("state", runtimeService.getVariable(task.getProcessInstanceId(), "state"));
     }
 
 }

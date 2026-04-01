@@ -2,7 +2,7 @@ package org.ny.its.flowablepoc.util;
 
 public final class ProcessFlowConstants {
 
-    //HTML View pages
+    // HTML View pages
     public static final String REDIRECT_CASE_HOME = "redirect:/case/home";
 
     // Prevent instantiation
@@ -21,13 +21,14 @@ public final class ProcessFlowConstants {
     public static final String FINAL_REVIEW_TASK = "finalReviewTask";
     public static final String ADDRESS_REVIEW_TASK = "addressReviewTask";
     public static final String ADDRESS_ENTRY_TASK = "addressEntryTask";
+    public static final String ISSUES_REVIEW_TASK = "reviewIssuesTask";
 
     // Process Variables
     public static final String INCARCERATION_STATUS = "incarcerationStatus";
     public static final String SSN_RESPONSE = "ssnResponse";
     public static final String DOCCS_RESPONSE = "doccsResponse";
 
-    //Response Variable Values
+    // Response Variable Values
     public static final String YES = "Yes";
     public static final String NO = "No";
     public static final String INVALID = "Invalid";
@@ -40,18 +41,16 @@ public final class ProcessFlowConstants {
     public static final String STATUS_NOT_INCARCERATED = "Not Incarcerated";
     public static final String STATUS_ON_PAROLE = "On Parole";
 
-    //Static Fields
+    // Static Fields
     public static final String FIRST_NAME = "firstName";
     public static final String LAST_NAME = "lastName";
     public static final String GENDER = "gender";
     public static final String DATE_OF_BIRTH = "dateOfBirth";
     public static final String SSN = "ssn";
 
-
     public static final String STREET = "street";
     public static final String CITY = "city";
     public static final String STATE = "state";
     public static final String POSTAL_CODE = "postalCode";
-
 
 }
