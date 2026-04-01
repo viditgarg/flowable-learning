@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:flowable="http://flowable.org/bpmn"
+             targetNamespace="http://www.flowable.org/processdef">
+
+    <process id="case_regV9" name="Case Registration V9" isExecutable="true">
+
+        <!-- START -->
+        <startEvent id="startEvent"/>
+
+        <!-- Case Details -->
+        <userTask id="caseDetailsTask" name="Validate Case Details"/>
+
+        <!-- Search -->
+        <serviceTask id="searchPersonST" name="Search Person"
+                     flowable:type="http"/>
+
+        <!-- PARALLEL SPLIT -->
+        <parallelGateway id="parallelSplit"/>
+
+        <!-- ================= SSN FLOW ================= -->
+
+        <serviceTask id="ssnApiTask" name="SSN Validation API"
+                     flowable:type="http"/>
+
+        <exclusiveGateway id="ssnGateway"/>
+
+        <userTask id="ssnManualTask" name="SSN Manual Review"/>
+
+        <!-- ================= DOCCS FLOW ================= -->
+
+        <serviceTask id="doccsApiTask" name="DOCCS Validation API"
+                     flowable:delegateExpression="${incarcerationValidationService}"/>
+
+        <exclusiveGateway id="doccsGateway"/>
+
+        <userTask id="doccsManualTask" name="DOCCS Manual Review"/>
+
+        <!-- ================= JOIN ================= -->
+
+        <parallelGateway id="parallelJoin"/>
+
+        <!-- ================= FINAL VALIDATION ================= -->
+
+        <exclusiveGateway id="finalValidationGateway"/>
+
+        <!-- ================= ADDRESS FLOW ================= -->
+
+        <userTask id="addressEntryTask" name="Enter Address Details"
+                  flowable:formKey="addressForm"/>
+
+        <serviceTask id="postalCodeServiceTask" name="Fetch Postal Code"
+                     flowable:delegateExpression="${postalCodeService}"/>
+
+        <userTask id="addressReviewTask" name="Review Address"
+                  flowable:formKey="addressReviewForm"/>
+
+        <!-- ================= FINAL REVIEW ================= -->
+
+        <userTask id="finalReviewTask" name="Final Review"/>
+
+        <!-- ================= ISSUE HANDLING ================= -->
+
+        <userTask id="reviewIssuesTask" name="Review Issues"/>
+
+        <!-- END -->
+        <endEvent id="endEvent"/>
+
+        <!-- ================= FLOWS ================= -->
+
+        <!-- Start -->
+        <sequenceFlow sourceRef="startEvent" targetRef="caseDetailsTask"/>
+        <sequenceFlow sourceRef="caseDetailsTask" targetRef="searchPersonST"/>
+        <sequenceFlow sourceRef="searchPersonST" targetRef="parallelSplit"/>
+
+        <!-- Split -->
+        <sequenceFlow sourceRef="parallelSplit" targetRef="ssnApiTask"/>
+        <sequenceFlow sourceRef="parallelSplit" targetRef="doccsApiTask"/>
+
+        <!-- ================= SSN ================= -->
+
+        <sequenceFlow sourceRef="ssnApiTask" targetRef="ssnGateway"/>
+
+        <!-- If valid → join -->
+        <sequenceFlow sourceRef="ssnGateway" targetRef="parallelJoin">
+            <conditionExpression xsi:type="tFormalExpression">
+                <![CDATA[${SSN_Valid == 'true'}]]>
+            </conditionExpression>
+        </sequenceFlow>
+
+        <!-- If invalid → manual -->
+        <sequenceFlow sourceRef="ssnGateway" targetRef="ssnManualTask"/>
+
+        <!-- Manual ALWAYS goes to join (after override) -->
+        <sequenceFlow sourceRef="ssnManualTask" targetRef="parallelJoin"/>
+
+        <!-- ================= DOCCS ================= -->
+
+        <sequenceFlow sourceRef="doccsApiTask" targetRef="doccsGateway"/>
+
+        <!-- If clear → join -->
+        <sequenceFlow sourceRef="doccsGateway" targetRef="parallelJoin">
+            <conditionExpression xsi:type="tFormalExpression">
+                <![CDATA[${incarcerationStatus == false}]]>
+            </conditionExpression>
+        </sequenceFlow>
+
+        <!-- If issue → manual -->
+        <sequenceFlow sourceRef="doccsGateway" targetRef="doccsManualTask"/>
+
+        <!-- Manual ALWAYS goes to join -->
+        <sequenceFlow sourceRef="doccsManualTask" targetRef="parallelJoin"/>
+
+        <!-- ================= JOIN → VALIDATION ================= -->
+
+        <sequenceFlow sourceRef="parallelJoin" targetRef="finalValidationGateway"/>
+
+        <!-- BOTH must be valid -->
+        <sequenceFlow sourceRef="finalValidationGateway" targetRef="addressEntryTask">
+            <conditionExpression xsi:type="tFormalExpression">
+                <![CDATA[
+                ${SSN_Valid == 'true' && incarcerationStatus == false}
+                ]]>
+            </conditionExpression>
+        </sequenceFlow>
+
+        <!-- Otherwise go to issue review -->
+        <sequenceFlow sourceRef="finalValidationGateway" targetRef="reviewIssuesTask"/>
+
+        <!-- ================= ADDRESS ================= -->
+
+        <sequenceFlow sourceRef="addressEntryTask" targetRef="postalCodeServiceTask"/>
+        <sequenceFlow sourceRef="postalCodeServiceTask" targetRef="addressReviewTask"/>
+        <sequenceFlow sourceRef="addressReviewTask" targetRef="finalReviewTask"/>
+
+        <!-- ================= FINAL ================= -->
+
+        <sequenceFlow sourceRef="finalReviewTask" targetRef="endEvent"/>
+
+        <!-- ================= ISSUE END ================= -->
+
+        <sequenceFlow sourceRef="reviewIssuesTask" targetRef="endEvent"/>
+
+    </process>
+</definitions>
