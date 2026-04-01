@@ -129,10 +129,11 @@
             </extensionElements>
         </userTask>
 
-
-        <!-- Exclusive Gateway for status branching -->
+          <!-- Exclusive Gateway for status branching -->
+        <!-- 
+      
         <exclusiveGateway id="reviewIncarcerationGateway" name="Incarceration Status Gateway"
-                          default="flow-to-parallel-if-not-incarcerated"/>
+                          default="flow-to-parallel-if-not-incarcerated"/> -->
 
         <!-- Parallel Join -->
         <inclusiveGateway id="parallelJoin" name="Inclusive Join Gateway" />
@@ -155,10 +156,11 @@
                   flowable:candidateGroups="stateworkers,managers"
                   flowable:formKey="detailsvalidationV2" flowable:formFieldValidation="true" flowable:priority="10"/>
 
-        <exclusiveGateway id="ssnReviewGateway" name="SSN Review Gateway"
-                          default="sid-6AE2D3EF-A71C-4BFE-8841-8FA71D47BE45"/>
+      <!--   <exclusiveGateway id="ssnReviewGateway" name="SSN Review Gateway"
+                          default="sid-6AE2D3EF-A71C-4BFE-8841-8FA71D47BE45"/> -->
+        <exclusiveGateway id="decisionReviewGateway" name="Decision Review Gateway"/>
         <sequenceFlow id="sid-FF1CEA13-A434-4797-91CA-444D546063C7" sourceRef="ssnManualTask"
-                      targetRef="ssnReviewGateway"/>
+                      targetRef="parallelJoin"/>
 
 
         <!-- END -->
@@ -188,24 +190,26 @@
 
 
         <sequenceFlow id="flow-doccsManual-to-review" sourceRef="doccsManualTask"
-                      targetRef="reviewIncarcerationGateway"/>
+                      targetRef="parallelJoin"/>
+        <sequenceFlow id="flow-parallelJoin-to-decision" sourceRef="parallelJoin"
+                      targetRef="decisionReviewGateway"/>
+        
 
-
-        <sequenceFlow id="flow-to-parallel-if-incarcerated" sourceRef="reviewIncarcerationGateway"
+        <sequenceFlow id="flow-to-issuesTask-if-incarcerated_or_ssn_invalid" sourceRef="decisionReviewGateway"
                       targetRef="reviewIssuesTask">
             <conditionExpression xsi:type="tFormalExpression">
-                <![CDATA[${incarcerationStatus == 'Incarcerated'}]]></conditionExpression>
+                <![CDATA[${incarcerationStatus == 'Incarcerated' || SSN_Valid.toString() == 'false'}]]></conditionExpression>
         </sequenceFlow>
-        <sequenceFlow id="sid-2CF02C74-2A5E-47E3-A3D5-E4C805DE4892" sourceRef="ssnReviewGateway"
+        <!-- <sequenceFlow id="sid-2CF02C74-2A5E-47E3-A3D5-E4C805DE4892" sourceRef="ssnReviewGateway"
                       targetRef="reviewIssuesTask">
             <conditionExpression xsi:type="tFormalExpression">
                 <![CDATA[${SSN_Valid != null && SSN_Valid.toString() == 'false'}]]></conditionExpression>
-        </sequenceFlow>
-        <sequenceFlow id="flow-to-parallel-if-not-incarcerated" sourceRef="reviewIncarcerationGateway"
+        </sequenceFlow> -->
+      <!--   <sequenceFlow id="flow-to-parallel-if-not-incarcerated" sourceRef="reviewIncarcerationGateway"
                       targetRef="parallelJoin">
-        </sequenceFlow>
+        </sequenceFlow> -->
 
-        <sequenceFlow id="flow-parallelJoin-to-addressEntry" sourceRef="parallelJoin" targetRef="addressEntryTask"/>
+        <sequenceFlow id="flow-parallelJoin-to-addressEntry" sourceRef="decisionReviewGateway" targetRef="addressEntryTask"/>
         <sequenceFlow id="flow-addressEntry-to-postal" sourceRef="addressEntryTask" targetRef="postalCodeServiceTask"/>
         <sequenceFlow id="flow-postal-to-review" sourceRef="postalCodeServiceTask" targetRef="addressReviewTask"/>
         <sequenceFlow id="flow-review-to-final" sourceRef="addressReviewTask" targetRef="finalReviewTask"/>
@@ -213,8 +217,8 @@
         <endEvent id="sid-FF96C903-2FCD-44E7-8CDE-FA8AACA1386C"/>
         <sequenceFlow id="sid-3EBD5E2A-7021-4A6F-921E-1FD689CA66B8" sourceRef="reviewIssuesTask"
                       targetRef="sid-FF96C903-2FCD-44E7-8CDE-FA8AACA1386C"/>
-        <sequenceFlow id="sid-6AE2D3EF-A71C-4BFE-8841-8FA71D47BE45" sourceRef="ssnReviewGateway"
-                      targetRef="parallelJoin"/>
+       <!--  <sequenceFlow id="sid-6AE2D3EF-A71C-4BFE-8841-8FA71D47BE45" sourceRef="ssnReviewGateway"
+                      targetRef="parallelJoin"/> -->
 
     </process>
 </definitions>

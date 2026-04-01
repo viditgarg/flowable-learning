@@ -173,7 +173,8 @@ public class CaseController {
             case ISSUES_REVIEW_TASK:
                 view = "issuesReviewForm";
                 model.addAttribute("ssnValid", runtimeService.getVariable(processInstanceId, "SSN_Valid"));
-                model.addAttribute("incarceratedStatus", runtimeService.getVariable(processInstanceId, "incarcerationStatus"));
+                model.addAttribute("incarceratedStatus",
+                        runtimeService.getVariable(processInstanceId, "incarcerationStatus"));
                 break;
             case ADDRESS_ENTRY_TASK:
                 view = "addressForm";
@@ -204,12 +205,6 @@ public class CaseController {
         return REDIRECT_CASE_HOME;
     }
 
-    @GetMapping("/cleanup")
-    @ResponseBody
-    public String cleanAllData() {
-        return caseService.cleanAllData();
-    }
-
     @PostMapping("/completeIncarcerationReview")
     public String completeIncarcerationReview(@RequestParam String taskId, Model model,
             @ModelAttribute("person") Person person) {
@@ -227,7 +222,7 @@ public class CaseController {
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         runtimeService.setVariable(task.getProcessInstanceId(), "SSN_Valid", person.getUpdateSSNValid());
         taskService.complete(taskId);
-        log.info("SSN Review Completed, TaskID::" + taskId+" SSN Valid::"+person.getUpdateSSNValid());
+        log.info("SSN Review Completed, TaskID::" + taskId + " SSN Valid::" + person.getUpdateSSNValid());
         return REDIRECT_CASE_HOME;
     }
 
@@ -287,6 +282,13 @@ public class CaseController {
         return REDIRECT_CASE_HOME;
     }
 
+    // to clean up existing data
+    @GetMapping("/cleanup")
+    @ResponseBody
+    public String cleanAllData() {
+        return caseService.cleanAllData();
+    }
+
     private void populateCaseDetailsForValidation(Task task, Model model) {
         model.addAttribute("person", caseService.getPersonData(task.getProcessInstanceId()));
         model.addAttribute("taskId", task.getId());
@@ -299,5 +301,4 @@ public class CaseController {
         model.addAttribute("city", runtimeService.getVariable(task.getProcessInstanceId(), "city"));
         model.addAttribute("state", runtimeService.getVariable(task.getProcessInstanceId(), "state"));
     }
-
 }
