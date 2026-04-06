@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <title>Case Dashboard</title>
@@ -10,17 +11,21 @@
         body {
             background-color: #f5f7fa;
         }
+
         .card {
             border: none;
             border-radius: 12px;
         }
+
         .section-title {
             font-weight: 600;
             margin-bottom: 15px;
         }
+
         .table th {
             font-size: 14px;
         }
+
         .badge {
             font-size: 12px;
         }
@@ -29,132 +34,137 @@
 
 <body>
 
-<div th:replace="fragments/header :: header"></div>
+    <div th:replace="fragments/header :: header"></div>
 
-<div class="container mt-4">
+    <div class="container mt-4">
 
-    <!-- 🔹 Header + Action -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3>Case Dashboard</h3>
+        <!--  Header + Action -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3>Case Dashboard</h3>
 
-        <form th:action="@{/case/new_registration}" method="get">
-            <button type="submit" class="btn btn-warning shadow-sm">
-                + Register New Case
-            </button>
-        </form>
-    </div>
+            <form th:action="@{/case/new_registration}" method="get">
+                <button type="submit" class="btn btn-warning shadow-sm">
+                    + Register New Case
+                </button>
+            </form>
+        </div>
 
-    <!-- 🔹 Summary Cards -->
-    <div class="row mb-4 text-center">
-        <div class="col-md-3">
-            <div class="card shadow-sm p-3">
-                <h6>Total Cases</h6>
-                <h4 th:text="${#lists.size(processes)}"></h4>
+        <!--  Summary Cards -->
+        <div class="row mb-4 text-center">
+            <div class="col-md-3">
+                <div class="card shadow-sm p-3">
+                    <h6>Total Cases</h6>
+                    <h4 th:text="${#lists.size(processes)}"></h4>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card shadow-sm p-3">
+                    <h6>Active Tasks</h6>
+                    <h4 th:text="${#lists.size(tasks)}"></h4>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card shadow-sm p-3">
+                    <h6>Unassigned Tasks</h6>
+                    <h4 th:text="${tasks.?[assignee == null].size()}"></h4>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card shadow-sm p-3">
+                    <h6>Completed Cases</h6>
+                    <h4>--</h4> <!-- future -->
+                </div>
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="card shadow-sm p-3">
-                <h6>Active Tasks</h6>
-                <h4 th:text="${#lists.size(tasks)}"></h4>
-            </div>
+        <!-- In Progress Cases -->
+        <div class="card shadow-sm p-4 mb-4">
+            <h5 class="section-title">In-Progress Cases</h5>
+
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Case ID</th>
+                        <th>Applicant Name</th>
+                        <!-- <th>Current Step</th> -->
+                        <th>Start Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="p : ${processes}">
+                        <td th:text="${p.processInstanceId}"></td>
+                        <td th:text="${p.applicantName}"></td>
+
+                        <td th:text="${#dates.format(p.startTime,'MM/dd/yyyy HH:mm')}"></td>
+
+                        <td>
+                            <span class="badge bg-primary">In Progress</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
+        <!-- Tasks -->
+        <div class="card shadow-sm p-4">
+            <h5 class="section-title">Pending Tasks</h5>
 
-        <div class="col-md-3">
-            <div class="card shadow-sm p-3">
-                <h6>Unassigned Tasks</h6>
-                <h4 th:text="${tasks.?[assignee == null].size()}"></h4>
-            </div>
-        </div>
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Case ID</th>
+                        <th>Applicant Name</th>
+                        <th>Task Name</th>
+                        <th>Status</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
 
-        <div class="col-md-3">
-            <div class="card shadow-sm p-3">
-                <h6>Completed Cases</h6>
-                <h4>--</h4> <!-- future -->
-            </div>
-        </div>
-    </div>
+                <tbody>
+                    <tr th:each="t : ${tasks}">
 
-    <!-- 🔹 In Progress Cases -->
-    <div class="card shadow-sm p-4 mb-4">
-        <h5 class="section-title">In-Progress Cases</h5>
+                        <!-- Case ID FIRST -->
+                        <td th:text="${t.processInstanceId}"></td>
+                        <td th:text="${t.applicantName}"></td>
 
-        <table class="table table-hover align-middle">
-            <thead class="table-light">
-            <tr>
-                <th>Case ID</th>
-                <th>Applicant</th>
-                <th>Current Step</th>
-                <th>Start Time</th>
-                <th>Status</th>
-            </tr>
-            </thead>
+                        <td th:text="${t.name}"></td>
 
-            <tbody>
-            <tr th:each="p : ${processes}">
-                <td th:text="${p.processInstanceId}"></td>
-                <td th:text="${p.applicantName}"></td>
+                        <td>
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        </td>
 
-                <td th:text="${#dates.format(p.startTime,'MM/dd/yyyy HH:mm')}"></td>
+                        <td class="text-end">
 
-                <td>
-                    <span class="badge bg-primary">In Progress</span>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-    <!-- 🔹 Tasks -->
-    <div class="card shadow-sm p-4">
-        <h5 class="section-title">Pending Tasks</h5>
+                            <form th:action="@{/case/tasks/complete}" method="post" class="d-inline">
+                                <input type="hidden" name="taskId" th:value="${t.id}" />
+                                <input type="hidden" name="processInstanceId" th:value="${t.processInstanceId}" />
 
-        <table class="table table-hover align-middle">
-            <thead class="table-light">
-            <tr>
-                <th>Case ID</th>
-                <th>Task Name</th>
-                <th>Status</th>
-                <th class="text-end">Action</th>
-            </tr>
-            </thead>
-
-            <tbody>
-            <tr th:each="t : ${tasks}">
-
-                <!-- 🔥 Case ID FIRST -->
-                <td th:text="${t.processInstanceId}"></td>
-
-                <td th:text="${t.name}"></td>
-
-                <td>
-                    <span class="badge bg-warning text-dark">Pending</span>
-                </td>
-
-                <td class="text-end">
-
-                    <form th:action="@{/case/tasks/complete}" method="post" class="d-inline">
-                        <input type="hidden" name="taskId" th:value="${t.id}"/>
-                        <input type="hidden" name="processInstanceId" th:value="${t.processInstanceId}"/>
-
-                        <button type="submit" class="btn btn-sm btn-success"
-                                th:text="${t.taskDefinitionKey == 'caseDetailsTask' ? 'Start' :
+                                <button type="submit" class="btn btn-sm btn-success" th:text="${t.taskDefinitionKey == 'caseDetailsTask' ? 'Validate' :
                               t.taskDefinitionKey == 'finalReviewTask' ? 'Approve' :
                               t.taskDefinitionKey == 'ssnManualTask' ? 'Review SSN' :
+                               t.taskDefinitionKey == 'reviewIssuesTask' ? 'Review Issues' :
+                                t.taskDefinitionKey == 'addressEntryTask' ? 'Add Address' :
+                                 t.taskDefinitionKey == 'addressReviewTask' ? 'Review Address' :
                               t.taskDefinitionKey == 'doccsManualTask' ? 'Review Incarceration' : 'Open'}">
-                        </button>
-                    </form>
+                                </button>
+                            </form>
 
-                </td>
+                        </td>
 
-            </tr>
-            </tbody>
-        </table>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+
+
+
     </div>
 
-
-
-
-</div>
-
 </body>
+
 </html>

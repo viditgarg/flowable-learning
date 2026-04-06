@@ -40,7 +40,8 @@ public class WorkflowTaskService {
                         t.getAssignee(),
                         t.getProcessInstanceId(),
                         t.getProcessDefinitionId(),
-                        t.getTaskDefinitionKey()
+                        t.getTaskDefinitionKey(),
+                        "Unknown"
                 )).toList();
         // return taskService.createTaskQuery().list();
     }
@@ -57,7 +58,8 @@ public class WorkflowTaskService {
                         t.getAssignee(),
                         t.getProcessInstanceId(),
                         t.getProcessDefinitionId(),
-                        t.getTaskDefinitionKey()
+                        t.getTaskDefinitionKey(),
+                         "Unknown"
                 )).toList();
     }
 

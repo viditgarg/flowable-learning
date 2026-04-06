@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <title>Issues Review</title>
@@ -7,97 +8,115 @@
     <link rel="stylesheet" th:href="@{/css/form-layout.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>
-        input[readonly], select[disabled], textarea[readonly] {
+        input[readonly],
+        select[disabled],
+        textarea[readonly] {
             background-color: #f8f9fa;
             color: #495057;
         }
-        .highlight-ssn-invalid {
-            background-color: #f8d7da; /* red-ish */
+
+        input.form-control.highlight-ssn-invalid {
+            /* 1-0-0 */
+            background-color: #f8d7da;
+            /* red-ish */
             color: #721c24;
         }
-        .highlight-incarcerated {
-            background-color: #fff3cd; /* yellow-ish */
+
+        input.form-control.highlight-incarcerated {
+            background-color: #fff3cd;
+            /* yellow-ish */
             color: #856404;
         }
     </style>
 </head>
+
 <body>
-<div th:replace="fragments/header :: header"></div>
+    <div th:replace="fragments/header :: header"></div>
 
-<h4 class="center-heading">Review Case Details</h4>
+    <h4 class="center-heading">Review Case Details</h4>
 
-<form class="form-container">
-    <input type="hidden" name="taskId" th:value="${taskId}"/>
+    <form class="form-container" th:action="@{/case/completeIssuesReviewTask}" method="post">
+        <input type="hidden" name="taskId" th:value="${taskId}" />
 
-    <!-- Person Name -->
-    <div class="row mb-3">
-        <label class="col-sm-3 col-form-label">First Name</label>
-        <div class="col-sm-9">
-            <input type="text" class="form-control" th:value="${person.firstName}" readonly>
+        <!-- Person Name -->
+        <div class="row mb-3">
+            <label class="col-sm-3 col-form-label">First Name</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" th:value="${person.firstName}" readonly>
+            </div>
         </div>
-    </div>
 
-    <div class="row mb-3">
-        <label class="col-sm-3 col-form-label">Last Name</label>
-        <div class="col-sm-9">
-            <input type="text" class="form-control" th:value="${person.lastName}" readonly>
+        <div class="row mb-3">
+            <label class="col-sm-3 col-form-label">Last Name</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" th:value="${person.lastName}" readonly>
+            </div>
         </div>
-    </div>
-
-    <!-- SSN -->
-    <div class="row mb-3">
-        <label class="col-sm-3 col-form-label">SSN</label>
-        <div class="col-sm-9">
-            <input type="text"
-                   class="form-control"
-                   th:value="${person.ssn}"
-                   th:classappend="${!ssnValid} ? ' highlight-ssn-invalid' : ''"
-                   readonly>
+        <!-- Date of Birth -->
+        <div class="row mb-3">
+            <label class="col-sm-3 col-form-label">Date of Birth</label>
+            <div class="col-sm-9">
+                <input type="date" class="form-control" th:value="${person.dateofbirth}" readonly>
+            </div>
         </div>
-    </div>
 
-    <!-- SSN Valid -->
-    <div class="row mb-3">
-        <label class="col-sm-3 col-form-label">SSN Valid</label>
-        <div class="col-sm-9">
-            <input type="text"
-                   class="form-control"
-                   th:value="${ssnValid ? 'true' : 'false'}"
-                   th:classappend="${!ssnValid} ? ' highlight-ssn-invalid' : ''"
-                   readonly>
+        <!-- Gender -->
+        <div class="row mb-3">
+            <label class="col-sm-3 col-form-label">Gender</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" th:value="${person.gender}" readonly>
+            </div>
         </div>
-    </div>
-
-    <!-- Incarceration Status -->
-    <div class="row mb-3">
-        <label class="col-sm-3 col-form-label">Incarceration Status</label>
-        <div class="col-sm-9">
-            <input type="text"
-                   class="form-control"
-                   th:value="${incarceratedStatus}"
-                   th:classappend="${incarceratedStatus == 'on parole' || incarceratedStatus == 'incarcerated'} ? ' highlight-incarcerated' : ''"
-                   readonly>
+        <!-- SSN -->
+        <div class="row mb-3">
+            <label class="col-sm-3 col-form-label">SSN</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" th:value="${person.ssn}"
+                    th:classappend="${!ssnValid} ? ' highlight-ssn-invalid' : ''" readonly>
+            </div>
         </div>
-    </div>
 
-    <!-- Date of Birth -->
-    <div class="row mb-3">
-        <label class="col-sm-3 col-form-label">Date of Birth</label>
-        <div class="col-sm-9">
-            <input type="date" class="form-control" th:value="${person.dateofbirth}" readonly>
+        <!-- SSN Valid -->
+        <div class="row mb-3">
+            <label class="col-sm-3 col-form-label">SSN Valid</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" th:value="${ssnValid ? 'true' : 'false'}"
+                    th:classappend="${!ssnValid} ? ' highlight-ssn-invalid' : ''" readonly>
+            </div>
         </div>
-    </div>
 
-    <!-- Gender -->
-    <div class="row mb-3">
-        <label class="col-sm-3 col-form-label">Gender</label>
-        <div class="col-sm-9">
-            <input type="text" class="form-control" th:value="${person.gender}" readonly>
+        <!-- Incarceration Status -->
+        <div class="row mb-3">
+            <label class="col-sm-3 col-form-label">Incarceration Status</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" th:value="${incarceratedStatus}"
+                    th:classappend="${incarceratedStatus == 'Incarcerated'} ? ' highlight-incarcerated' : ''" readonly>
+            </div>
         </div>
-    </div>
 
 
+        <!-- Rejection Reason -->
+        <div class="row mb-3">
+            <label class="col-sm-3 col-form-label">Rejection Reason</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control"
+                    th:value="${!ssnValid ? 'SSN is not valid' : (incarceratedStatus == 'Incarcerated' ? 'Incarceration' : '')}"
+                    readonly>
+            </div>
+        </div>
 
-</form>
+        <!-- Buttons -->
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-success w-100">
+                Submit Case
+            </button>
+
+            <a href="/case/home" class="btn btn-outline-secondary w-100">
+                Cancel
+            </a>
+        </div>
+
+    </form>
 </body>
+
 </html>

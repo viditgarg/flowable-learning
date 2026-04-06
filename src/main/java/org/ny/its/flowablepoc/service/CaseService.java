@@ -52,6 +52,7 @@ public class CaseService {
         return piList.stream().map(
                 p -> {
                     Map<String, Object> vars = runtimeService.getVariables(p.getProcessInstanceId());
+                    
                     return new ProcessDTO(
                             p.getProcessDefinitionKey(),
                             p.getProcessInstanceId(),
@@ -65,15 +66,28 @@ public class CaseService {
 
     public List<TaskDTO> getAllTasks() {
         List<Task> tasks = taskService.createTaskQuery().list();
-        return tasks.stream().map(
-                t -> new TaskDTO(
+        return tasks.stream().map (
+                t -> {
+                    String firstName = Optional.ofNullable(runtimeService.getVariable(t.getProcessInstanceId(), "firstName"))
+                    .map(Object::toString)
+                    .orElse(null);
+                    
+                    String lastName = Optional.ofNullable(runtimeService.getVariable(t.getProcessInstanceId(), "lastName"))
+                    .map(Object::toString)
+                    .orElse(null);
+                   
+                    String applicantName = firstName+" "+lastName;
+
+                    return new TaskDTO(
                         t.getId(),
                         t.getName(),
                         t.getAssignee(),
                         t.getProcessInstanceId(),
                         t.getProcessDefinitionId(),
-                        t.getTaskDefinitionKey()
-                )).toList();
+                        t.getTaskDefinitionKey(),
+                        applicantName
+                    );
+                }).toList();
         // return taskService.createTaskQuery().list();
     }
 

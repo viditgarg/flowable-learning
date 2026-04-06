@@ -119,7 +119,7 @@ public class CaseController {
 
     }
 
-    @PostMapping("/prisonerValidation")
+   /*  @PostMapping("/prisonerValidation")
     @ResponseBody
     public String prisonerValidation(@RequestBody Map<String, Object> map) {
 
@@ -132,7 +132,7 @@ public class CaseController {
         // call DOCCS & Rikers services by passing ssn, dob and name
         return "true";
 
-    }
+    } */
 
     @GetMapping("/start")
     @ResponseBody
@@ -209,6 +209,20 @@ public class CaseController {
         taskService.complete(taskId);
         return REDIRECT_CASE_HOME;
     }
+
+    //completeIssuesReviewTask
+
+     @PostMapping("/completeIssuesReviewTask")
+    public String completeIssuesReviewTask(@RequestParam String taskId) {
+        Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
+        String name = runtimeService.getVariable(task.getProcessInstanceId(),"firstName") + " " +
+        runtimeService.getVariable(task.getProcessInstanceId(),"lastName");
+
+        log.info("case for "+name+" is rejected for now");
+       // taskService.complete(taskId);
+        return REDIRECT_CASE_HOME;
+    }
+
 
     @PostMapping("/completeValidation")
     public String completeValidation(@RequestParam String taskId, Model model) {

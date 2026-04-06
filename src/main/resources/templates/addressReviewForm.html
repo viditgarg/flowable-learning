@@ -10,13 +10,28 @@
 <body class="bg-light">
 
     <div class="container d-flex justify-content-center align-items-center vh-100">
-        <div class="card shadow-lg p-4 rounded-4" style="width: 500px;">
+        <div class="card shadow-lg p-4 rounded-4" style="width: 700px;">
 
 
             <h4 class="center-heading">Review Address</h4>
 
             <form th:action="@{/case/completeAddressReview}" method="post" class="form-container">
                 <input type="hidden" name="taskId" th:value="${taskId}" />
+
+                <!-- Person Name -->
+                <div class="row mb-3">
+                    <label class="col-sm-3 col-form-label">First Name</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" th:value="${person.firstName}" readonly>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label class="col-sm-3 col-form-label">Last Name</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" th:value="${person.lastName}" readonly>
+                    </div>
+                </div>
 
                 <div class="row mb-3">
                     <label class="col-sm-3 col-form-label">Street</label>
@@ -49,7 +64,8 @@
                 <div class="row mb-3">
                     <label class="col-sm-3 col-form-label">Postal Code in Words</label>
                     <div class="col-sm-9">
-                        <input type="text" class="form-control" name="postalCode" th:value="${postalCodeInWords}" readonly>
+                        <input type="text" class="form-control" name="postalCode" th:value="${postalCodeInWords}"
+                            readonly>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary">Confirm</button>
